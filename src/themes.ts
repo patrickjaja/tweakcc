@@ -5,6 +5,7 @@ export const themes: Theme[] = [
     name: "Dark mode",
     id: "dark",
     colors: {
+      foreground: "#ff00000",
       autoAccept: "rgb(175,135,255)",
       bashBorder: "rgb(253,93,177)",
       claude: "rgb(215,119,87)",
@@ -33,6 +34,7 @@ export const themes: Theme[] = [
     name: "Light mode",
     id: "light",
     colors: {
+      foreground: "#ff00000",
       autoAccept: "rgb(135,0,255)",
       bashBorder: "rgb(255,0,135)",
       claude: "rgb(215,119,87)",
@@ -61,6 +63,7 @@ export const themes: Theme[] = [
     name: "Light mode (ANSI colors only)",
     id: "light-ansi",
     colors: {
+      foreground: "#ff00000",
       autoAccept: "#cd00cd",
       bashBorder: "#cd00cd",
       claude: "#cdcd00",
@@ -89,6 +92,7 @@ export const themes: Theme[] = [
     name: "Dark mode (ANSI colors only)",
     id: "dark-ansi",
     colors: {
+      foreground: "#ff00000",
       autoAccept: "#ff00ff",
       bashBorder: "#ff00ff",
       claude: "#cdcd00",
@@ -117,6 +121,7 @@ export const themes: Theme[] = [
     name: "Light mode (colorblind-friendly)",
     id: "light-daltonized",
     colors: {
+      foreground: "#ff00000",
       autoAccept: "rgb(135,0,255)",
       bashBorder: "rgb(0,102,204)",
       claude: "rgb(255,153,51)",
@@ -145,6 +150,7 @@ export const themes: Theme[] = [
     name: "Dark mode (colorblind-friendly)",
     id: "dark-daltonized",
     colors: {
+      foreground: "#ff00000",
       autoAccept: "rgb(175,135,255)",
       bashBorder: "rgb(51,153,255)",
       claude: "rgb(255,153,51)",

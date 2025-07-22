@@ -69,7 +69,7 @@ export function LaunchTextView({
         FIGLET_FONTS = sortedFonts;
 
         // Set initial font index
-        const fontIndex = sortedFonts.indexOf(config.figletFont);
+        const fontIndex = sortedFonts.indexOf(config.figletFont as any);
         setSelectedFontIndex(
           fontIndex >= 0 ? fontIndex : sortedFonts.indexOf("ANSI Shadow") || 0
         );

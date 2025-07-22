@@ -6,20 +6,29 @@ interface MainViewProps {
   selectedIndex: number;
   onSelect: (index: number) => void;
   onSubmit: (item: string) => void;
+  changesApplied: boolean;
 }
 
-const menuItems = [
+const baseMenuItems = [
   'Themes',
   'Launch text',
   'Thinking verbs',
-  'Thinking style',
+  'Thinking style'
+];
+
+const systemMenuItems = [
   'Restore original Claude Code (preserves tweakcc.json)',
   'Open tweakcc.json',
   'Open Claude Code\'s cli.js',
   'Exit'
 ];
 
-export function MainView({ selectedIndex, onSelect, onSubmit }: MainViewProps) {
+export function MainView({ selectedIndex, onSelect, onSubmit, changesApplied }: MainViewProps) {
+  const menuItems = [
+    ...(changesApplied ? [] : ['Apply changes to cli.js']),
+    ...baseMenuItems,
+    ...systemMenuItems
+  ];
   return (
     <Box flexDirection="column">
       <Box marginBottom={1}>

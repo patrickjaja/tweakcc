@@ -84,7 +84,9 @@ export function ThinkingStyleView({
       if (key.return) {
         const newInterval = parseInt(intervalInput);
         if (!isNaN(newInterval) && newInterval > 0) {
-          setConfig(prev => ({ ...prev, updateInterval: newInterval }));
+          const newConfig = { ...config, updateInterval: newInterval };
+          setConfig(newConfig);
+          onSave(newConfig);
         }
         setEditingInterval(false);
       } else if (key.escape) {
@@ -102,18 +104,22 @@ export function ThinkingStyleView({
       if (key.return) {
         if (phaseInput.trim()) {
           if (addingNewPhase) {
-            setConfig(prev => ({
-              ...prev,
-              phases: [...prev.phases, phaseInput.trim()]
-            }));
+            const newConfig = {
+              ...config,
+              phases: [...config.phases, phaseInput.trim()]
+            };
+            setConfig(newConfig);
+            onSave(newConfig);
             setAddingNewPhase(false);
           } else {
-            setConfig(prev => ({
-              ...prev,
-              phases: prev.phases.map((phase, index) =>
+            const newConfig = {
+              ...config,
+              phases: config.phases.map((phase, index) =>
                 index === selectedPhaseIndex ? phaseInput.trim() : phase
               )
-            }));
+            };
+            setConfig(newConfig);
+            onSave(newConfig);
             setEditingPhase(false);
           }
         }
@@ -139,11 +145,13 @@ export function ThinkingStyleView({
       } else if (selectedOption === "presets") {
         // Apply selected preset
         const preset = PRESETS[selectedPresetIndex];
-        setConfig(prev => ({
-          ...prev,
+        const newConfig = {
+          ...config,
           phases: [...preset.phases],
           reverseMirror: preset.reverseMirror
-        }));
+        };
+        setConfig(newConfig);
+        onSave(newConfig);
       } else {
         onSave(config);
       }
@@ -179,7 +187,9 @@ export function ThinkingStyleView({
       }
     } else if (input === ' ') {
       if (selectedOption === "reverseMirror") {
-        setConfig(prev => ({ ...prev, reverseMirror: !prev.reverseMirror }));
+        const newConfig = { ...config, reverseMirror: !config.reverseMirror };
+        setConfig(newConfig);
+        onSave(newConfig);
       }
     } else if (input === 'e' && selectedOption === "phases") {
       if (config.phases.length > 0) {
@@ -192,43 +202,47 @@ export function ThinkingStyleView({
       setPhaseInput("");
     } else if (input === 'd' && selectedOption === "phases") {
       if (config.phases.length > 1) {
-        setConfig(prev => ({
-          ...prev,
-          phases: prev.phases.filter((_, index) => index !== selectedPhaseIndex)
-        }));
-        if (selectedPhaseIndex >= config.phases.length - 1) {
-          setSelectedPhaseIndex(Math.max(0, config.phases.length - 2));
+        const newConfig = {
+          ...config,
+          phases: config.phases.filter((_, index) => index !== selectedPhaseIndex)
+        };
+        setConfig(newConfig);
+        onSave(newConfig);
+        if (selectedPhaseIndex >= newConfig.phases.length) {
+          setSelectedPhaseIndex(Math.max(0, newConfig.phases.length - 1));
         }
       }
     } else if (input === 'w' && selectedOption === "phases") {
       // Move phase up
       if (selectedPhaseIndex > 0) {
-        setConfig(prev => {
-          const newPhases = [...prev.phases];
-          [newPhases[selectedPhaseIndex - 1], newPhases[selectedPhaseIndex]] = 
-          [newPhases[selectedPhaseIndex], newPhases[selectedPhaseIndex - 1]];
-          return { ...prev, phases: newPhases };
-        });
+        const newPhases = [...config.phases];
+        [newPhases[selectedPhaseIndex - 1], newPhases[selectedPhaseIndex]] = 
+        [newPhases[selectedPhaseIndex], newPhases[selectedPhaseIndex - 1]];
+        const newConfig = { ...config, phases: newPhases };
+        setConfig(newConfig);
+        onSave(newConfig);
         setSelectedPhaseIndex(prev => prev - 1);
       }
     } else if (input === 's' && selectedOption === "phases") {
       // Move phase down
       if (selectedPhaseIndex < config.phases.length - 1) {
-        setConfig(prev => {
-          const newPhases = [...prev.phases];
-          [newPhases[selectedPhaseIndex], newPhases[selectedPhaseIndex + 1]] = 
-          [newPhases[selectedPhaseIndex + 1], newPhases[selectedPhaseIndex]];
-          return { ...prev, phases: newPhases };
-        });
+        const newPhases = [...config.phases];
+        [newPhases[selectedPhaseIndex], newPhases[selectedPhaseIndex + 1]] = 
+        [newPhases[selectedPhaseIndex + 1], newPhases[selectedPhaseIndex]];
+        const newConfig = { ...config, phases: newPhases };
+        setConfig(newConfig);
+        onSave(newConfig);
         setSelectedPhaseIndex(prev => prev + 1);
       }
     } else if (key.ctrl && input === 'r') {
       // Reset all settings to default
-      setConfig({
+      const newConfig = {
         reverseMirror: true,
         updateInterval: 120,
         phases: [...DEFAULT_PHASES],
-      });
+      };
+      setConfig(newConfig);
+      onSave(newConfig);
       setSelectedPhaseIndex(0);
       setSelectedPresetIndex(0);
     }
