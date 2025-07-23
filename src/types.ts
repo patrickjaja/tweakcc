@@ -28,7 +28,7 @@ export interface Theme {
 }
 
 export interface LaunchTextConfig {
-  method: 'figlet' | 'custom';
+  method: "figlet" | "custom";
   figletText: string;
   figletFont: string;
   customText: string;
@@ -46,7 +46,13 @@ export interface ThinkingStyleConfig {
   phases: string[];
 }
 
-export type ViewType = 'main' | 'themes' | 'themeEdit' | 'launchText' | 'thinkingVerbs' | 'thinkingStyle';
+export type ViewType =
+  | "main"
+  | "themes"
+  | "themeEdit"
+  | "launchText"
+  | "thinkingVerbs"
+  | "thinkingStyle";
 
 export interface AppState {
   currentView: ViewType;

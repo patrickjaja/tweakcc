@@ -32,8 +32,12 @@ export function ColorPicker({
 }: ColorPickerProps) {
   // Parse initial color value immediately
   const initialHsl = parseColorToHSL(initialValue) || { h: 0, s: 50, l: 50 };
-  const initialRgb = parseColorToRGB(initialValue) || { r: 128, g: 128, b: 128 };
-  
+  const initialRgb = parseColorToRGB(initialValue) || {
+    r: 128,
+    g: 128,
+    b: 128,
+  };
+
   const [hsl, setHsl] = useState<HSL>(initialHsl);
   const [rgb, setRgb] = useState<RGB>(initialRgb);
   const [sliderMode, setSliderMode] = useState<"hsl" | "rgb">("hsl");
@@ -521,52 +525,84 @@ export function ColorPicker({
 
       <Box marginBottom={1}>
         <Text>Current: </Text>
-        <Text backgroundColor={getCurrentColor()}>{'        '}</Text>
+        <Text backgroundColor={getCurrentColor()}>{"        "}</Text>
       </Box>
 
       <Box flexDirection="row" justifyContent="space-between">
         <Box flexDirection="column">
           <Text dimColor>Hex </Text>
           {colorKey?.startsWith("diff") ? (
-            <Text backgroundColor={getCurrentColor()} color={theme?.colors?.text || "white"} bold>
+            <Text
+              backgroundColor={getCurrentColor()}
+              color={theme?.colors?.text || "white"}
+              bold
+            >
               {rgbToHex(rgb.r, rgb.g, rgb.b)}
             </Text>
           ) : colorKey === "inverseText" ? (
-            <Text color={getCurrentColor()} backgroundColor={theme?.colors?.permission} bold>
+            <Text
+              color={getCurrentColor()}
+              backgroundColor={theme?.colors?.permission}
+              bold
+            >
               {rgbToHex(rgb.r, rgb.g, rgb.b)}
             </Text>
           ) : (
-            <Text color={getCurrentColor()} bold>{rgbToHex(rgb.r, rgb.g, rgb.b)}</Text>
+            <Text color={getCurrentColor()} bold>
+              {rgbToHex(rgb.r, rgb.g, rgb.b)}
+            </Text>
           )}
         </Box>
 
         <Box flexDirection="column">
           <Text dimColor>RGB </Text>
           {colorKey?.startsWith("diff") ? (
-            <Text backgroundColor={getCurrentColor()} color={theme?.colors?.text || "white"} bold>
+            <Text
+              backgroundColor={getCurrentColor()}
+              color={theme?.colors?.text || "white"}
+              bold
+            >
               {`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`}
             </Text>
           ) : colorKey === "inverseText" ? (
-            <Text color={getCurrentColor()} backgroundColor={theme?.colors?.permission} bold>
+            <Text
+              color={getCurrentColor()}
+              backgroundColor={theme?.colors?.permission}
+              bold
+            >
               {`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`}
             </Text>
           ) : (
-            <Text color={getCurrentColor()} bold>{`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`}</Text>
+            <Text
+              color={getCurrentColor()}
+              bold
+            >{`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`}</Text>
           )}
         </Box>
 
         <Box flexDirection="column">
           <Text dimColor>HSL </Text>
           {colorKey?.startsWith("diff") ? (
-            <Text backgroundColor={getCurrentColor()} color={theme?.colors?.text || "white"} bold>
+            <Text
+              backgroundColor={getCurrentColor()}
+              color={theme?.colors?.text || "white"}
+              bold
+            >
               {`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`}
             </Text>
           ) : colorKey === "inverseText" ? (
-            <Text color={getCurrentColor()} backgroundColor={theme?.colors?.permission} bold>
+            <Text
+              color={getCurrentColor()}
+              backgroundColor={theme?.colors?.permission}
+              bold
+            >
               {`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`}
             </Text>
           ) : (
-            <Text color={getCurrentColor()} bold>{`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`}</Text>
+            <Text
+              color={getCurrentColor()}
+              bold
+            >{`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`}</Text>
           )}
         </Box>
       </Box>

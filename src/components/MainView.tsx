@@ -1,6 +1,6 @@
-import React from 'react';
-import { Box, Text } from 'ink';
-import { SelectInput } from './SelectInput.js';
+import React from "react";
+import { Box, Text } from "ink";
+import { SelectInput } from "./SelectInput.js";
 
 interface MainViewProps {
   selectedIndex: number;
@@ -10,24 +10,29 @@ interface MainViewProps {
 }
 
 const baseMenuItems = [
-  'Themes',
-  'Launch text',
-  'Thinking verbs',
-  'Thinking style'
+  "Themes",
+  "Launch text",
+  "Thinking verbs",
+  "Thinking style",
 ];
 
 const systemMenuItems = [
-  'Restore original Claude Code (preserves tweakcc.json)',
-  'Open tweakcc.json',
-  'Open Claude Code\'s cli.js',
-  'Exit'
+  "Restore original Claude Code (preserves tweakcc.json)",
+  "Open tweakcc.json",
+  "Open Claude Code's cli.js",
+  "Exit",
 ];
 
-export function MainView({ selectedIndex, onSelect, onSubmit, changesApplied }: MainViewProps) {
+export function MainView({
+  selectedIndex,
+  onSelect,
+  onSubmit,
+  changesApplied,
+}: MainViewProps) {
   const menuItems = [
-    ...(changesApplied ? [] : ['Apply changes to cli.js']),
+    ...(changesApplied ? [] : ["Apply changes to cli.js"]),
     ...baseMenuItems,
-    ...systemMenuItems
+    ...systemMenuItems,
   ];
   return (
     <Box flexDirection="column">
@@ -36,15 +41,18 @@ export function MainView({ selectedIndex, onSelect, onSubmit, changesApplied }: 
       </Box>
       <Box marginBottom={1}>
         <Text color="gray">
-          Customize your Claude Code installation. Settings will be saved to a JSON file.
+          Customize your Claude Code installation. Settings will be saved to a
+          JSON file.
         </Text>
       </Box>
       <Box marginBottom={1}>
         <Text color="gray">
-          Note that when you update Claude Code, your customizations will be lost, and you'll have to use the 'Apply settings' menu below to reapply them again.
+          Note that when you update Claude Code, your customizations will be
+          lost, and you'll have to use the 'Apply settings' menu below to
+          reapply them again.
         </Text>
       </Box>
-      
+
       <SelectInput
         items={menuItems}
         selectedIndex={selectedIndex}

@@ -1,11 +1,10 @@
-import { Theme } from './types.js';
+import { Theme } from "./types.js";
 
 export const themes: Theme[] = [
   {
     name: "Dark mode",
     id: "dark",
     colors: {
-      foreground: "#ff00000",
       autoAccept: "rgb(175,135,255)",
       bashBorder: "rgb(253,93,177)",
       claude: "rgb(215,119,87)",
@@ -27,14 +26,13 @@ export const themes: Theme[] = [
       diffAddedWord: "rgb(56,166,96)",
       diffRemovedWord: "rgb(179,89,107)",
       diffAddedWordDimmed: "rgb(46,107,58)",
-      diffRemovedWordDimmed: "rgb(139,57,69)"
-    }
+      diffRemovedWordDimmed: "rgb(139,57,69)",
+    },
   },
   {
     name: "Light mode",
     id: "light",
     colors: {
-      foreground: "#ff00000",
       autoAccept: "rgb(135,0,255)",
       bashBorder: "rgb(255,0,135)",
       claude: "rgb(215,119,87)",
@@ -56,14 +54,13 @@ export const themes: Theme[] = [
       diffAddedWord: "rgb(47,157,68)",
       diffRemovedWord: "rgb(209,69,75)",
       diffAddedWordDimmed: "rgb(144,194,156)",
-      diffRemovedWordDimmed: "rgb(232,165,173)"
-    }
+      diffRemovedWordDimmed: "rgb(232,165,173)",
+    },
   },
   {
     name: "Light mode (ANSI colors only)",
     id: "light-ansi",
     colors: {
-      foreground: "#ff00000",
       autoAccept: "#cd00cd",
       bashBorder: "#cd00cd",
       claude: "#cdcd00",
@@ -85,14 +82,13 @@ export const themes: Theme[] = [
       diffAddedWord: "#00ff00",
       diffRemovedWord: "#ff0000",
       diffAddedWordDimmed: "#00cd00",
-      diffRemovedWordDimmed: "#cd0000"
-    }
+      diffRemovedWordDimmed: "#cd0000",
+    },
   },
   {
     name: "Dark mode (ANSI colors only)",
     id: "dark-ansi",
     colors: {
-      foreground: "#ff00000",
       autoAccept: "#ff00ff",
       bashBorder: "#ff00ff",
       claude: "#cdcd00",
@@ -114,14 +110,13 @@ export const themes: Theme[] = [
       diffAddedWord: "#00ff00",
       diffRemovedWord: "#ff0000",
       diffAddedWordDimmed: "#00cd00",
-      diffRemovedWordDimmed: "#cd0000"
-    }
+      diffRemovedWordDimmed: "#cd0000",
+    },
   },
   {
     name: "Light mode (colorblind-friendly)",
     id: "light-daltonized",
     colors: {
-      foreground: "#ff00000",
       autoAccept: "rgb(135,0,255)",
       bashBorder: "rgb(0,102,204)",
       claude: "rgb(255,153,51)",
@@ -143,14 +138,13 @@ export const themes: Theme[] = [
       diffAddedWord: "rgb(51,102,204)",
       diffRemovedWord: "rgb(153,51,51)",
       diffAddedWordDimmed: "rgb(102,153,204)",
-      diffRemovedWordDimmed: "rgb(204,153,153)"
-    }
+      diffRemovedWordDimmed: "rgb(204,153,153)",
+    },
   },
   {
     name: "Dark mode (colorblind-friendly)",
     id: "dark-daltonized",
     colors: {
-      foreground: "#ff00000",
       autoAccept: "rgb(175,135,255)",
       bashBorder: "rgb(51,153,255)",
       claude: "rgb(255,153,51)",
@@ -172,18 +166,18 @@ export const themes: Theme[] = [
       diffAddedWord: "rgb(0,119,179)",
       diffRemovedWord: "rgb(179,0,0)",
       diffAddedWordDimmed: "rgb(26,99,128)",
-      diffRemovedWordDimmed: "rgb(128,21,21)"
-    }
-  }
+      diffRemovedWordDimmed: "rgb(128,21,21)",
+    },
+  },
 ];
 
 // themeItems is now generated dynamically in ThemesView.tsx
 // This export is kept for backward compatibility but not used
 export const themeItems = [
-  'Dark mode (dark)',
-  'Light mode (light)',
-  'Dark mode (colorblind-friendly) (dark-daltonized)',
-  'Light mode (colorblind-friendly) (light-daltonized)',
-  'Dark mode (ANSI colors only) (dark-ansi)',
-  'Light mode (ANSI colors only) (light-ansi)'
+  "Dark mode (dark)",
+  "Light mode (light)",
+  "Dark mode (colorblind-friendly) (dark-daltonized)",
+  "Light mode (colorblind-friendly) (light-daltonized)",
+  "Dark mode (ANSI colors only) (dark-ansi)",
+  "Light mode (ANSI colors only) (light-ansi)",
 ];

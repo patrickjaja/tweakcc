@@ -494,7 +494,10 @@ export function LaunchTextView({
         >
           <Box flexDirection="column" marginBottom={1}>
             <Text color={claudeColor}>╭──────────────────────────╮</Text>
-            <Text><Text color={claudeColor}>│ ✻</Text> Welcome to Claude Code <Text color={claudeColor}>│</Text></Text>
+            <Text>
+              <Text color={claudeColor}>│ ✻</Text> Welcome to Claude Code{" "}
+              <Text color={claudeColor}>│</Text>
+            </Text>
             <Text color={claudeColor}>╰──────────────────────────╯</Text>
           </Box>
 
@@ -505,7 +508,10 @@ export function LaunchTextView({
           ))}
 
           <Box marginTop={1}>
-            <Text wrap="truncate-end">Claude Code can now be used with your Claude subscription or billed based on API usage through your Console account.</Text>
+            <Text wrap="truncate-end">
+              Claude Code can now be used with your Claude subscription or
+              billed based on API usage through your Console account.
+            </Text>
           </Box>
         </Box>
       </Box>

@@ -13,20 +13,48 @@ interface ThinkingStyleViewProps {
 const DEFAULT_PHASES = ["·", "✢", "✳", "✶", "✻", "✽"];
 
 const PRESETS = [
-  { name: "Default", phases: ["·", "✢", "✳", "✶", "✻", "✽"], reverseMirror: true },
+  {
+    name: "Default",
+    phases: ["·", "✢", "✳", "✶", "✻", "✽"],
+    reverseMirror: true,
+  },
   { name: "Basic", phases: ["|", "/", "-", "\\"], reverseMirror: false },
-  { name: "Braille", phases: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"], reverseMirror: false },
+  {
+    name: "Braille",
+    phases: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
+    reverseMirror: false,
+  },
   { name: "Circle", phases: ["◐", "◓", "◑", "◒"], reverseMirror: false },
-  { name: "Wave", phases: ["▁", "▃", "▄", "▅", "▆", "▇", "█"], reverseMirror: true },
+  {
+    name: "Wave",
+    phases: ["▁", "▃", "▄", "▅", "▆", "▇", "█"],
+    reverseMirror: true,
+  },
   { name: "Glow", phases: ["░", "▒", "▓", "█"], reverseMirror: true },
-  { name: "Partial block", phases: ["▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"], reverseMirror: true },
-  { name: "Clock", phases: ["🕐", "🕑", "🕒", "🕓", "🕔", "🕕"], reverseMirror: false },
+  {
+    name: "Partial block",
+    phases: ["▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"],
+    reverseMirror: true,
+  },
+  {
+    name: "Clock",
+    phases: ["🕐", "🕑", "🕒", "🕓", "🕔", "🕕"],
+    reverseMirror: false,
+  },
   { name: "Globe", phases: ["🌍", "🌎", "🌏"], reverseMirror: false },
   { name: "Arc", phases: ["◜", "◠", "◝", "◞", "◡", "◟"], reverseMirror: false },
   { name: "Triangle", phases: ["◤", "◥", "◢", "◣"], reverseMirror: false },
-  { name: "Bouncing", phases: ["⠁", "⠂", "⠄", "⡀", "⢀", "⠠", "⠐", "⠈"], reverseMirror: false },
+  {
+    name: "Bouncing",
+    phases: ["⠁", "⠂", "⠄", "⡀", "⢀", "⠠", "⠐", "⠈"],
+    reverseMirror: false,
+  },
   { name: "Dots", phases: [".", "..", "..."], reverseMirror: false },
-  { name: "Colors", phases: ["🔴", "🟠", "🟡", "🟢", "🔵", "🟣"], reverseMirror: false }
+  {
+    name: "Colors",
+    phases: ["🔴", "🟠", "🟡", "🟢", "🔵", "🟣"],
+    reverseMirror: false,
+  },
 ];
 
 export function ThinkingStyleView({
@@ -45,7 +73,12 @@ export function ThinkingStyleView({
     }
   );
 
-  const options = ["reverseMirror", "updateInterval", "phases", "presets"] as const;
+  const options = [
+    "reverseMirror",
+    "updateInterval",
+    "phases",
+    "presets",
+  ] as const;
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(0);
   const selectedOption = options[selectedOptionIndex];
   const [selectedPhaseIndex, setSelectedPhaseIndex] = useState(0);
@@ -54,7 +87,9 @@ export function ThinkingStyleView({
   const [phaseInput, setPhaseInput] = useState("");
   const [addingNewPhase, setAddingNewPhase] = useState(false);
   const [editingInterval, setEditingInterval] = useState(false);
-  const [intervalInput, setIntervalInput] = useState(config.updateInterval.toString());
+  const [intervalInput, setIntervalInput] = useState(
+    config.updateInterval.toString()
+  );
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
 
   // Get current Claude theme and color
@@ -67,14 +102,14 @@ export function ThinkingStyleView({
   // Animate spinner based on config
   useEffect(() => {
     if (config.phases.length > 0) {
-      const phases = config.reverseMirror 
+      const phases = config.reverseMirror
         ? [...config.phases, ...[...config.phases].reverse().slice(1, -1)]
         : config.phases;
-      
+
       const interval = setInterval(() => {
-        setCurrentPhaseIndex(prev => (prev + 1) % phases.length);
+        setCurrentPhaseIndex((prev) => (prev + 1) % phases.length);
       }, config.updateInterval);
-      
+
       return () => clearInterval(interval);
     }
   }, [config.phases, config.updateInterval, config.reverseMirror]);
@@ -93,9 +128,9 @@ export function ThinkingStyleView({
         setIntervalInput(config.updateInterval.toString());
         setEditingInterval(false);
       } else if (key.backspace) {
-        setIntervalInput(prev => prev.slice(0, -1));
+        setIntervalInput((prev) => prev.slice(0, -1));
       } else if (input && input.match(/^[0-9]$/)) {
-        setIntervalInput(prev => prev + input);
+        setIntervalInput((prev) => prev + input);
       }
       return;
     }
@@ -106,7 +141,7 @@ export function ThinkingStyleView({
           if (addingNewPhase) {
             const newConfig = {
               ...config,
-              phases: [...config.phases, phaseInput.trim()]
+              phases: [...config.phases, phaseInput.trim()],
             };
             setConfig(newConfig);
             onSave(newConfig);
@@ -116,7 +151,7 @@ export function ThinkingStyleView({
               ...config,
               phases: config.phases.map((phase, index) =>
                 index === selectedPhaseIndex ? phaseInput.trim() : phase
-              )
+              ),
             };
             setConfig(newConfig);
             onSave(newConfig);
@@ -129,9 +164,9 @@ export function ThinkingStyleView({
         setEditingPhase(false);
         setAddingNewPhase(false);
       } else if (key.backspace) {
-        setPhaseInput(prev => prev.slice(0, -1));
+        setPhaseInput((prev) => prev.slice(0, -1));
       } else if (input) {
-        setPhaseInput(prev => prev + input);
+        setPhaseInput((prev) => prev + input);
       }
       return;
     }
@@ -148,7 +183,7 @@ export function ThinkingStyleView({
         const newConfig = {
           ...config,
           phases: [...preset.phases],
-          reverseMirror: preset.reverseMirror
+          reverseMirror: preset.reverseMirror,
         };
         setConfig(newConfig);
         onSave(newConfig);
@@ -167,44 +202,46 @@ export function ThinkingStyleView({
       }
     } else if (key.upArrow) {
       if (selectedOption === "phases" && config.phases.length > 0) {
-        setSelectedPhaseIndex(prev => 
+        setSelectedPhaseIndex((prev) =>
           prev > 0 ? prev - 1 : config.phases.length - 1
         );
       } else if (selectedOption === "presets") {
-        setSelectedPresetIndex(prev => 
+        setSelectedPresetIndex((prev) =>
           prev > 0 ? prev - 1 : PRESETS.length - 1
         );
       }
     } else if (key.downArrow) {
       if (selectedOption === "phases" && config.phases.length > 0) {
-        setSelectedPhaseIndex(prev => 
+        setSelectedPhaseIndex((prev) =>
           prev < config.phases.length - 1 ? prev + 1 : 0
         );
       } else if (selectedOption === "presets") {
-        setSelectedPresetIndex(prev => 
+        setSelectedPresetIndex((prev) =>
           prev < PRESETS.length - 1 ? prev + 1 : 0
         );
       }
-    } else if (input === ' ') {
+    } else if (input === " ") {
       if (selectedOption === "reverseMirror") {
         const newConfig = { ...config, reverseMirror: !config.reverseMirror };
         setConfig(newConfig);
         onSave(newConfig);
       }
-    } else if (input === 'e' && selectedOption === "phases") {
+    } else if (input === "e" && selectedOption === "phases") {
       if (config.phases.length > 0) {
         setPhaseInput(config.phases[selectedPhaseIndex]);
         setEditingPhase(true);
       }
-    } else if (input === 'a' && selectedOption === "phases") {
+    } else if (input === "a" && selectedOption === "phases") {
       // Add new phase
       setAddingNewPhase(true);
       setPhaseInput("");
-    } else if (input === 'd' && selectedOption === "phases") {
+    } else if (input === "d" && selectedOption === "phases") {
       if (config.phases.length > 1) {
         const newConfig = {
           ...config,
-          phases: config.phases.filter((_, index) => index !== selectedPhaseIndex)
+          phases: config.phases.filter(
+            (_, index) => index !== selectedPhaseIndex
+          ),
         };
         setConfig(newConfig);
         onSave(newConfig);
@@ -212,29 +249,33 @@ export function ThinkingStyleView({
           setSelectedPhaseIndex(Math.max(0, newConfig.phases.length - 1));
         }
       }
-    } else if (input === 'w' && selectedOption === "phases") {
+    } else if (input === "w" && selectedOption === "phases") {
       // Move phase up
       if (selectedPhaseIndex > 0) {
         const newPhases = [...config.phases];
-        [newPhases[selectedPhaseIndex - 1], newPhases[selectedPhaseIndex]] = 
-        [newPhases[selectedPhaseIndex], newPhases[selectedPhaseIndex - 1]];
+        [newPhases[selectedPhaseIndex - 1], newPhases[selectedPhaseIndex]] = [
+          newPhases[selectedPhaseIndex],
+          newPhases[selectedPhaseIndex - 1],
+        ];
         const newConfig = { ...config, phases: newPhases };
         setConfig(newConfig);
         onSave(newConfig);
-        setSelectedPhaseIndex(prev => prev - 1);
+        setSelectedPhaseIndex((prev) => prev - 1);
       }
-    } else if (input === 's' && selectedOption === "phases") {
+    } else if (input === "s" && selectedOption === "phases") {
       // Move phase down
       if (selectedPhaseIndex < config.phases.length - 1) {
         const newPhases = [...config.phases];
-        [newPhases[selectedPhaseIndex], newPhases[selectedPhaseIndex + 1]] = 
-        [newPhases[selectedPhaseIndex + 1], newPhases[selectedPhaseIndex]];
+        [newPhases[selectedPhaseIndex], newPhases[selectedPhaseIndex + 1]] = [
+          newPhases[selectedPhaseIndex + 1],
+          newPhases[selectedPhaseIndex],
+        ];
         const newConfig = { ...config, phases: newPhases };
         setConfig(newConfig);
         onSave(newConfig);
-        setSelectedPhaseIndex(prev => prev + 1);
+        setSelectedPhaseIndex((prev) => prev + 1);
       }
-    } else if (key.ctrl && input === 'r') {
+    } else if (key.ctrl && input === "r") {
       // Reset all settings to default
       const newConfig = {
         reverseMirror: true,
@@ -250,249 +291,275 @@ export function ThinkingStyleView({
 
   const checkboxChar = config.reverseMirror ? "x" : " ";
   const previewWidth = 50;
-  
+
   const getAnimatedPhases = () => {
-    return config.reverseMirror 
+    return config.reverseMirror
       ? [...config.phases, ...[...config.phases].reverse().slice(1, -1)]
       : config.phases;
   };
 
   const animatedPhases = getAnimatedPhases();
-  const currentPhase = animatedPhases.length > 0 ? animatedPhases[currentPhaseIndex] : "·";
-  
+  const currentPhase =
+    animatedPhases.length > 0 ? animatedPhases[currentPhaseIndex] : "·";
+
   return (
     <Box>
       <Box flexDirection="column" width={`${100 - previewWidth}%`}>
         <Box marginBottom={1} flexDirection="column">
-          <Text bold backgroundColor="#ffd500" color="black"> Thinking style </Text>
+          <Text bold backgroundColor="#ffd500" color="black">
+            {" "}
+            Thinking style{" "}
+          </Text>
           <Box>
-            <Text dimColor>enter to {
-              selectedOption === "updateInterval" ? "edit interval" : 
-              selectedOption === "presets" ? "apply preset" : "save"
-            }</Text>
+            <Text dimColor>
+              enter to{" "}
+              {selectedOption === "updateInterval"
+                ? "edit interval"
+                : selectedOption === "presets"
+                ? "apply preset"
+                : "save"}
+            </Text>
           </Box>
           <Box>
             <Text dimColor>esc to go back</Text>
           </Box>
         </Box>
 
-      <Box>
-        <Text>
-          <Text color={selectedOption === "reverseMirror" ? "yellow" : undefined}>
-            {selectedOption === "reverseMirror" ? "❯ " : "  "}
-          </Text>
-          <Text
-            bold
-            color={selectedOption === "reverseMirror" ? "yellow" : undefined}
-          >
-            Reverse-mirror phases
-          </Text>
-        </Text>
-      </Box>
-
-      {selectedOption === "reverseMirror" && (
-        <Text dimColor>
-          {"  "}space to toggle
-        </Text>
-      )}
-
-      <Box marginLeft={2} marginBottom={1}>
-        <Text>[{checkboxChar}] {config.reverseMirror ? "Enabled" : "Disabled"}</Text>
-      </Box>
-
-      <Box flexDirection="column">
-        <Text>
-          <Text color={selectedOption === "updateInterval" ? "yellow" : undefined}>
-            {selectedOption === "updateInterval" ? "❯ " : "  "}
-          </Text>
-          <Text
-            bold
-            color={selectedOption === "updateInterval" ? "yellow" : undefined}
-          >
-            Update interval (ms)
-          </Text>
-        </Text>
-        {selectedOption === "updateInterval" &&
-          (editingInterval ? (
-            <Text dimColor>{"  "}enter to save</Text>
-          ) : (
-            <Text dimColor>{"  "}enter to edit</Text>
-          ))}
-      </Box>
-
-      <Box marginLeft={2} marginBottom={1}>
-        <Box
-          borderStyle="round"
-          borderColor={editingInterval ? "yellow" : "gray"}
-        >
+        <Box>
           <Text>
-            {editingInterval ? intervalInput : config.updateInterval}
+            <Text
+              color={selectedOption === "reverseMirror" ? "yellow" : undefined}
+            >
+              {selectedOption === "reverseMirror" ? "❯ " : "  "}
+            </Text>
+            <Text
+              bold
+              color={selectedOption === "reverseMirror" ? "yellow" : undefined}
+            >
+              Reverse-mirror phases
+            </Text>
           </Text>
         </Box>
-      </Box>
 
-      <Box>
-        <Text>
-          <Text color={selectedOption === "phases" ? "yellow" : undefined}>
-            {selectedOption === "phases" ? "❯ " : "  "}
-          </Text>
-          <Text
-            bold
-            color={selectedOption === "phases" ? "yellow" : undefined}
-          >
-            Phases
-          </Text>
-        </Text>
-      </Box>
+        {selectedOption === "reverseMirror" && (
+          <Text dimColor>{"  "}space to toggle</Text>
+        )}
 
-      {selectedOption === "phases" && (
-        <Box marginBottom={1} flexDirection="column">
-          <Text dimColor>{"  "}e to edit · a to add · d to delete · w to move up · s to move down</Text>
+        <Box marginLeft={2} marginBottom={1}>
+          <Text>
+            [{checkboxChar}] {config.reverseMirror ? "Enabled" : "Disabled"}
+          </Text>
         </Box>
-      )}
 
-      <Box marginLeft={2} marginBottom={1}>
         <Box flexDirection="column">
-          {(() => {
-            const maxVisible = 8; // Show 8 phases at a time
-            const startIndex = Math.max(
-              0,
-              selectedPhaseIndex - Math.floor(maxVisible / 2)
-            );
-            const endIndex = Math.min(
-              config.phases.length,
-              startIndex + maxVisible
-            );
-            const adjustedStartIndex = Math.max(0, endIndex - maxVisible);
-
-            const visiblePhases = config.phases.slice(
-              adjustedStartIndex,
-              endIndex
-            );
-
-            return (
-              <>
-                {adjustedStartIndex > 0 && (
-                  <Text color="gray" dimColor>
-                    {" "}
-                    ↑ {adjustedStartIndex} more above
-                  </Text>
-                )}
-                {visiblePhases.map((phase, visibleIndex) => {
-                  const actualIndex = adjustedStartIndex + visibleIndex;
-                  return (
-                    <Text 
-                      key={actualIndex}
-                      color={selectedOption === "phases" && actualIndex === selectedPhaseIndex ? "cyan" : undefined}
-                    >
-                      {selectedOption === "phases" && actualIndex === selectedPhaseIndex ? "❯ " : "  "}{phase}
-                    </Text>
-                  );
-                })}
-                {endIndex < config.phases.length && (
-                  <Text color="gray" dimColor>
-                    {" "}
-                    ↓ {config.phases.length - endIndex} more below
-                  </Text>
-                )}
-              </>
-            );
-          })()}
-          {addingNewPhase && (
-            <Box>
-              <Text color="yellow">❯ </Text>
-              <Box 
-                borderStyle="round" 
-                borderColor="yellow"
-              >
-                <Text>{phaseInput}</Text>
-              </Box>
-            </Box>
-          )}
-          {editingPhase && (
-            <Box marginTop={1}>
-              <Text>Editing: </Text>
-              <Box 
-                borderStyle="round" 
-                borderColor="yellow"
-              >
-                <Text>{phaseInput}</Text>
-              </Box>
-            </Box>
-          )}
-        </Box>
-      </Box>
-
-      <Box>
-        <Text>
-          <Text color={selectedOption === "presets" ? "yellow" : undefined}>
-            {selectedOption === "presets" ? "❯ " : "  "}
+          <Text>
+            <Text
+              color={selectedOption === "updateInterval" ? "yellow" : undefined}
+            >
+              {selectedOption === "updateInterval" ? "❯ " : "  "}
+            </Text>
+            <Text
+              bold
+              color={selectedOption === "updateInterval" ? "yellow" : undefined}
+            >
+              Update interval (ms)
+            </Text>
           </Text>
-          <Text
-            bold
-            color={selectedOption === "presets" ? "yellow" : undefined}
+          {selectedOption === "updateInterval" &&
+            (editingInterval ? (
+              <Text dimColor>{"  "}enter to save</Text>
+            ) : (
+              <Text dimColor>{"  "}enter to edit</Text>
+            ))}
+        </Box>
+
+        <Box marginLeft={2} marginBottom={1}>
+          <Box
+            borderStyle="round"
+            borderColor={editingInterval ? "yellow" : "gray"}
           >
-            Presets
-          </Text>
-        </Text>
-      </Box>
-
-      {selectedOption === "presets" && (
-        <Text dimColor>
-          {"  "}Selecting one will overwrite your choice of phases
-        </Text>
-      )}
-
-      <Box marginLeft={2} marginBottom={1}>
-        <Box flexDirection="column">
-          {(() => {
-            const maxVisible = 8; // Show 8 presets at a time
-            const startIndex = Math.max(
-              0,
-              selectedPresetIndex - Math.floor(maxVisible / 2)
-            );
-            const endIndex = Math.min(
-              PRESETS.length,
-              startIndex + maxVisible
-            );
-            const adjustedStartIndex = Math.max(0, endIndex - maxVisible);
-
-            const visiblePresets = PRESETS.slice(
-              adjustedStartIndex,
-              endIndex
-            );
-
-            return (
-              <>
-                {adjustedStartIndex > 0 && (
-                  <Text color="gray" dimColor>
-                    {" "}
-                    ↑ {adjustedStartIndex} more above
-                  </Text>
-                )}
-                {visiblePresets.map((preset, visibleIndex) => {
-                  const actualIndex = adjustedStartIndex + visibleIndex;
-                  return (
-                    <Text 
-                      key={actualIndex}
-                      color={selectedOption === "presets" && actualIndex === selectedPresetIndex ? "cyan" : undefined}
-                    >
-                      {selectedOption === "presets" && actualIndex === selectedPresetIndex ? "❯ " : "  "}
-                      {preset.name} {preset.phases.join("")}
-                    </Text>
-                  );
-                })}
-                {endIndex < PRESETS.length && (
-                  <Text color="gray" dimColor>
-                    {" "}
-                    ↓ {PRESETS.length - endIndex} more below
-                  </Text>
-                )}
-              </>
-            );
-          })()}
+            <Text>
+              {editingInterval ? intervalInput : config.updateInterval}
+            </Text>
+          </Box>
         </Box>
-      </Box>
+
+        <Box>
+          <Text>
+            <Text color={selectedOption === "phases" ? "yellow" : undefined}>
+              {selectedOption === "phases" ? "❯ " : "  "}
+            </Text>
+            <Text
+              bold
+              color={selectedOption === "phases" ? "yellow" : undefined}
+            >
+              Phases
+            </Text>
+          </Text>
+        </Box>
+
+        {selectedOption === "phases" && (
+          <Box marginBottom={1} flexDirection="column">
+            <Text dimColor>
+              {"  "}e to edit · a to add · d to delete · w to move up · s to
+              move down
+            </Text>
+          </Box>
+        )}
+
+        <Box marginLeft={2} marginBottom={1}>
+          <Box flexDirection="column">
+            {(() => {
+              const maxVisible = 8; // Show 8 phases at a time
+              const startIndex = Math.max(
+                0,
+                selectedPhaseIndex - Math.floor(maxVisible / 2)
+              );
+              const endIndex = Math.min(
+                config.phases.length,
+                startIndex + maxVisible
+              );
+              const adjustedStartIndex = Math.max(0, endIndex - maxVisible);
+
+              const visiblePhases = config.phases.slice(
+                adjustedStartIndex,
+                endIndex
+              );
+
+              return (
+                <>
+                  {adjustedStartIndex > 0 && (
+                    <Text color="gray" dimColor>
+                      {" "}
+                      ↑ {adjustedStartIndex} more above
+                    </Text>
+                  )}
+                  {visiblePhases.map((phase, visibleIndex) => {
+                    const actualIndex = adjustedStartIndex + visibleIndex;
+                    return (
+                      <Text
+                        key={actualIndex}
+                        color={
+                          selectedOption === "phases" &&
+                          actualIndex === selectedPhaseIndex
+                            ? "cyan"
+                            : undefined
+                        }
+                      >
+                        {selectedOption === "phases" &&
+                        actualIndex === selectedPhaseIndex
+                          ? "❯ "
+                          : "  "}
+                        {phase}
+                      </Text>
+                    );
+                  })}
+                  {endIndex < config.phases.length && (
+                    <Text color="gray" dimColor>
+                      {" "}
+                      ↓ {config.phases.length - endIndex} more below
+                    </Text>
+                  )}
+                </>
+              );
+            })()}
+            {addingNewPhase && (
+              <Box>
+                <Text color="yellow">❯ </Text>
+                <Box borderStyle="round" borderColor="yellow">
+                  <Text>{phaseInput}</Text>
+                </Box>
+              </Box>
+            )}
+            {editingPhase && (
+              <Box marginTop={1}>
+                <Text>Editing: </Text>
+                <Box borderStyle="round" borderColor="yellow">
+                  <Text>{phaseInput}</Text>
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </Box>
+
+        <Box>
+          <Text>
+            <Text color={selectedOption === "presets" ? "yellow" : undefined}>
+              {selectedOption === "presets" ? "❯ " : "  "}
+            </Text>
+            <Text
+              bold
+              color={selectedOption === "presets" ? "yellow" : undefined}
+            >
+              Presets
+            </Text>
+          </Text>
+        </Box>
+
+        {selectedOption === "presets" && (
+          <Text dimColor>
+            {"  "}Selecting one will overwrite your choice of phases
+          </Text>
+        )}
+
+        <Box marginLeft={2} marginBottom={1}>
+          <Box flexDirection="column">
+            {(() => {
+              const maxVisible = 8; // Show 8 presets at a time
+              const startIndex = Math.max(
+                0,
+                selectedPresetIndex - Math.floor(maxVisible / 2)
+              );
+              const endIndex = Math.min(
+                PRESETS.length,
+                startIndex + maxVisible
+              );
+              const adjustedStartIndex = Math.max(0, endIndex - maxVisible);
+
+              const visiblePresets = PRESETS.slice(
+                adjustedStartIndex,
+                endIndex
+              );
+
+              return (
+                <>
+                  {adjustedStartIndex > 0 && (
+                    <Text color="gray" dimColor>
+                      {" "}
+                      ↑ {adjustedStartIndex} more above
+                    </Text>
+                  )}
+                  {visiblePresets.map((preset, visibleIndex) => {
+                    const actualIndex = adjustedStartIndex + visibleIndex;
+                    return (
+                      <Text
+                        key={actualIndex}
+                        color={
+                          selectedOption === "presets" &&
+                          actualIndex === selectedPresetIndex
+                            ? "cyan"
+                            : undefined
+                        }
+                      >
+                        {selectedOption === "presets" &&
+                        actualIndex === selectedPresetIndex
+                          ? "❯ "
+                          : "  "}
+                        {preset.name} {preset.phases.join("")}
+                      </Text>
+                    );
+                  })}
+                  {endIndex < PRESETS.length && (
+                    <Text color="gray" dimColor>
+                      {" "}
+                      ↓ {PRESETS.length - endIndex} more below
+                    </Text>
+                  )}
+                </>
+              );
+            })()}
+          </Box>
+        </Box>
 
         <Box marginTop={1}>
           <Text dimColor>ctrl+r to reset all settings to default</Text>
@@ -515,10 +582,12 @@ export function ThinkingStyleView({
               (10s · ↑ 456 tokens · esc to interrupt)
             </Text>
           </Text>
-          
+
           <Box marginTop={1} flexDirection="column">
             <Text dimColor>Phases: {config.phases.join("")}</Text>
-            <Text dimColor>Reverse-mirror: {config.reverseMirror ? "Yes" : "No"}</Text>
+            <Text dimColor>
+              Reverse-mirror: {config.reverseMirror ? "Yes" : "No"}
+            </Text>
             <Text dimColor>Update interval: {config.updateInterval}ms</Text>
           </Box>
         </Box>
