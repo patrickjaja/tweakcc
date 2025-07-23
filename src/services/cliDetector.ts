@@ -8,57 +8,25 @@ export interface ClaudeCodePaths {
   version: string;
 }
 
-const SEARCH_PATHS = [
+// prettier-ignore
+let SEARCH_PATHS = [
   // Volta installation
-  path.join(
-    os.homedir(),
-    "AppData",
-    "Local",
-    "Volta",
-    "tools",
-    "image",
-    "packages",
-    "@anthropic-ai",
-    "claude-code",
-    "node_modules",
-    "@anthropic-ai",
-    "claude-code"
-  ),
+  path.join(os.homedir(), "AppData", "Local", "Volta", "tools", "image", "packages", "@anthropic-ai", "claude-code", "node_modules", "@anthropic-ai", "claude-code"),
   // NPM global installations
-  path.join(
-    os.homedir(),
-    "AppData",
-    "Roaming",
-    "npm",
-    "node_modules",
-    "@anthropic-ai",
-    "claude-code"
-  ),
+  path.join(os.homedir(), "AppData", "Roaming", "npm", "node_modules", "@anthropic-ai", "claude-code"),
   // Yarn global
-  path.join(
-    os.homedir(),
-    "AppData",
-    "Local",
-    "Yarn",
-    "config",
-    "global",
-    "node_modules",
-    "@anthropic-ai",
-    "claude-code"
-  ),
+  path.join(os.homedir(), "AppData", "Local", "Yarn", "config", "global", "node_modules", "@anthropic-ai", "claude-code"),
   // PNPM global
-  path.join(
-    os.homedir(),
-    "AppData",
-    "Local",
-    "pnpm",
-    "global",
-    "5",
-    "node_modules",
-    "@anthropic-ai",
-    "claude-code"
-  ),
+  path.join(os.homedir(), "AppData", "Local", "pnpm", "global", "5", "node_modules", "@anthropic-ai", "claude-code"),
 ];
+
+// n
+if (process.env.N_PREFIX) {
+  SEARCH_PATHS.push(path.join(process.env.N_PREFIX, "lib", "node_modules", "@anthropic-ai", "claude-code"));
+}
+if (process.platform != 'win32') {
+  SEARCH_PATHS.push(path.join("/usr", "local", "lib", "node_modules", "@anthropic-ai", "claude-code"));
+}
 
 export function findClijs(): ClaudeCodePaths | null {
   process.stdout.write("Searching for Claude Code's cli.js\r");
