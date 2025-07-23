@@ -82,7 +82,7 @@ export function ThemesView({
           <Text dimColor>n to create a new theme</Text>
           <Text dimColor>d to delete a theme</Text>
           <Text dimColor>ctrl+r to delete all themes and restore built-in</Text>
-          <Text dimColor>esc/backspace to go back to main menus</Text>
+          <Text dimColor>esc to go back to main menus</Text>
         </Box>
 
         <SelectInput

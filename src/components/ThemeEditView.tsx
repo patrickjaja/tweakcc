@@ -217,7 +217,7 @@ export function ThemeEditView({
             <Box marginBottom={1} flexDirection="column">
               <Text dimColor>enter to edit theme name, id, or color</Text>
               <Text dimColor>ctrl+a to toggle rgb, hex, hsl</Text>
-              <Text dimColor>esc/backspace to go back</Text>
+              <Text dimColor>esc to go back</Text>
             </Box>
 
             {selectedIndex < 2 ? (
