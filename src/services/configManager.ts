@@ -172,22 +172,21 @@ export function saveThinkingStyleToConfig(
   saveConfig(config);
 }
 
-export function getThemesFromConfig(): Theme[] | null {
-  const config = getConfig();
-  return config?.settings?.themes || null;
+export interface AllConfigData {
+  changesApplied: boolean;
+  themes: Theme[] | null;
+  launchText: LaunchTextConfig | null;
+  thinkingVerbs: ThinkingVerbsConfig | null;
+  thinkingStyle: ThinkingStyleConfig | null;
 }
 
-export function getLaunchTextFromConfig(): LaunchTextConfig | null {
+export function getAllConfigData(): AllConfigData {
   const config = getConfig();
-  return config?.settings?.launchText || null;
-}
-
-export function getThinkingVerbsFromConfig(): ThinkingVerbsConfig | null {
-  const config = getConfig();
-  return config?.settings?.thinkingVerbs || null;
-}
-
-export function getThinkingStyleFromConfig(): ThinkingStyleConfig | null {
-  const config = getConfig();
-  return config?.settings?.thinkingStyle || null;
+  return {
+    changesApplied: config?.changesApplied ?? true,
+    themes: config?.settings?.themes || null,
+    launchText: config?.settings?.launchText || null,
+    thinkingVerbs: config?.settings?.thinkingVerbs || null,
+    thinkingStyle: config?.settings?.thinkingStyle || null,
+  };
 }

@@ -17,33 +17,19 @@ import {
   LaunchTextConfig,
   ThinkingVerbsConfig,
   ThinkingStyleConfig,
+  MainMenuItem,
 } from "./types.js";
 import { themes } from "./themes.js";
 import { checkClijs, handleVersionUpdate } from "./services/startupCheck.js";
+import { applyAllChanges } from "./services/applyChanges.js";
 import {
-  writeSigninBannerText,
-  writeThemes,
-  writeThinkerSymbolChars,
-  writeThinkerSymbolSpeed,
-  writeUseHaikuVerbs,
-  writeThinkerVerbs,
-  writeThinkerPunctuation,
-  writeThinkerSymbolMirrorOption,
-} from "./services/cliModifier.js";
-import {
-  getBackupCliPath,
-  getConfig,
-  getChangesApplied,
   setChangesApplied,
   saveThemesToConfig,
   saveLaunchTextToConfig,
   saveThinkingVerbsToConfig,
   restoreFromBackup,
   saveThinkingStyleToConfig,
-  getThemesFromConfig,
-  getLaunchTextFromConfig,
-  getThinkingVerbsFromConfig,
-  getThinkingStyleFromConfig,
+  getAllConfigData,
 } from "./services/configManager.js";
 import { findClijs } from "./services/cliDetector.js";
 
@@ -88,35 +74,23 @@ export default function App() {
         setCliPath(result.cliPath || null);
       }
 
+      // Load all config data in a single operation
+      const configData = getAllConfigData();
+      
       // Initialize changesApplied state
-      setChangesAppliedState(getChangesApplied());
+      setChangesAppliedState(configData.changesApplied);
 
       // Load settings from config
-      const savedThemes = getThemesFromConfig();
-      if (savedThemes) {
-        setCurrentThemes(savedThemes);
+      if (configData.themes) {
+        setCurrentThemes(configData.themes);
       }
 
-      const savedLaunchText = getLaunchTextFromConfig();
-      if (savedLaunchText) {
-        setState((prev) => ({ ...prev, launchTextConfig: savedLaunchText }));
-      }
-
-      const savedThinkingVerbs = getThinkingVerbsFromConfig();
-      if (savedThinkingVerbs) {
-        setState((prev) => ({
-          ...prev,
-          thinkingVerbsConfig: savedThinkingVerbs,
-        }));
-      }
-
-      const savedThinkingStyle = getThinkingStyleFromConfig();
-      if (savedThinkingStyle) {
-        setState((prev) => ({
-          ...prev,
-          thinkingStyleConfig: savedThinkingStyle,
-        }));
-      }
+      setState((prev) => ({
+        ...prev,
+        ...(configData.launchText && { launchTextConfig: configData.launchText }),
+        ...(configData.thinkingVerbs && { thinkingVerbsConfig: configData.thinkingVerbs }),
+        ...(configData.thinkingStyle && { thinkingStyleConfig: configData.thinkingStyle }),
+      }));
     };
 
     performStartupCheck();
@@ -221,141 +195,15 @@ export default function App() {
       setTimeout(() => setUpdateNotification(null), 3000);
       return;
     }
-
-    let content = readFileSync(cliPath, "utf8");
-    let changesMade = false;
-
-    // Apply themes
-    const savedThemes = getThemesFromConfig();
-    if (savedThemes && savedThemes.length > 0) {
-      const result = writeThemes(content, savedThemes);
-      if (result) {
-        content = result;
-        changesMade = true;
-      } else {
-        console.log("❌ Themes: Failed to find location in CLI file");
-      }
-    }
-
-    // Apply launch text
-    const savedLaunchText = getLaunchTextFromConfig();
-    if (savedLaunchText) {
-      let textToApply = "";
-
-      if (savedLaunchText.method === "custom" && savedLaunchText.customText) {
-        textToApply = savedLaunchText.customText;
-      } else if (
-        savedLaunchText.method === "figlet" &&
-        savedLaunchText.figletText
-      ) {
-        try {
-          textToApply = figlet.textSync(
-            savedLaunchText.figletText.replace("\n", " "),
-            {
-              font: savedLaunchText.figletFont as any,
-            }
-          );
-        } catch (error) {
-          console.log("❌ Launch Text: Failed to generate figlet text");
-        }
-      }
-
-      if (textToApply) {
-        const result = writeSigninBannerText(content, textToApply);
-        if (result) {
-          content = result;
-          changesMade = true;
-        } else {
-          console.log("❌ Launch Text: Failed to find location in CLI file");
-        }
-      }
-    }
-
-    // Apply thinking verbs
-    const savedThinkingVerbs = getThinkingVerbsFromConfig();
-    if (savedThinkingVerbs) {
-      const haikuResult = writeUseHaikuVerbs(
-        content,
-        savedThinkingVerbs.useHaikuGenerated
-      );
-      if (haikuResult) {
-        content = haikuResult;
-      } else {
-        console.log("❌ Use Haiku Verbs: Failed to find location in CLI file");
-      }
-
-      const verbsResult = writeThinkerVerbs(content, savedThinkingVerbs.verbs);
-      if (verbsResult) {
-        content = verbsResult;
-      } else {
-        console.log("❌ Thinker Verbs: Failed to find location in CLI file");
-      }
-
-      const punctResult = writeThinkerPunctuation(
-        content,
-        savedThinkingVerbs.punctuation
-      );
-      if (punctResult) {
-        content = punctResult;
-      } else {
-        console.log(
-          "❌ Thinker Punctuation: Failed to find location in CLI file"
-        );
-      }
-      changesMade = true;
-    }
-
-    // Apply thinking style
-    const savedThinkingStyle = getThinkingStyleFromConfig();
-    if (savedThinkingStyle) {
-      const charsResult = writeThinkerSymbolChars(
-        content,
-        savedThinkingStyle.phases
-      );
-      if (charsResult) {
-        content = charsResult;
-      } else {
-        console.log(
-          "❌ Thinker Symbol Chars: Failed to find location in CLI file"
-        );
-      }
-
-      const speedResult = writeThinkerSymbolSpeed(
-        content,
-        savedThinkingStyle.updateInterval
-      );
-      if (speedResult) {
-        content = speedResult;
-      } else {
-        console.log(
-          "❌ Thinker Symbol Speed: Failed to find location in CLI file"
-        );
-      }
-
-      const mirrorResult = writeThinkerSymbolMirrorOption(
-        content,
-        savedThinkingStyle.reverseMirror
-      );
-      if (mirrorResult) {
-        content = mirrorResult;
-      } else {
-        console.log(
-          "❌ Thinker Symbol Mirror Option: Failed to find location in CLI file"
-        );
-      }
-      changesMade = true;
-    }
-
-    if (changesMade) {
-      writeFileSync(cliPath, content);
-      setChangesApplied(true);
+    
+    const result = applyAllChanges(cliPath);
+    
+    if (result.success && result.changesMade) {
       setChangesAppliedState(true);
-      setUpdateNotification("All settings applied to Claude Code CLI!");
-      setTimeout(() => setUpdateNotification(null), 3000);
-    } else {
-      setUpdateNotification("No saved settings found to apply.");
-      setTimeout(() => setUpdateNotification(null), 3000);
     }
+    
+    setUpdateNotification(result.message);
+    setTimeout(() => setUpdateNotification(null), 3000);
   };
 
   const handleOpenCliJs = () => {
@@ -410,34 +258,33 @@ export default function App() {
     setState((prev) => ({ ...prev, selectedMainIndex: index }));
   };
 
-  const handleMainSubmit = (item: string) => {
+  const handleMainSubmit = (item: MainMenuItem) => {
     switch (item) {
-      case "Themes":
+      case MainMenuItem.THEMES:
         setState((prev) => ({ ...prev, currentView: "themes" }));
         break;
-      case "Launch text":
+      case MainMenuItem.LAUNCH_TEXT:
         setState((prev) => ({ ...prev, currentView: "launchText" }));
         break;
-      case "Thinking verbs":
+      case MainMenuItem.THINKING_VERBS:
         setState((prev) => ({ ...prev, currentView: "thinkingVerbs" }));
         break;
-      case "Thinking style":
+      case MainMenuItem.THINKING_STYLE:
         setState((prev) => ({ ...prev, currentView: "thinkingStyle" }));
         break;
-      case "Apply changes to cli.js":
+      case MainMenuItem.APPLY_CHANGES:
         handleApplyChanges();
         break;
-      case "Restore original Claude Code (preserves tweakcc.json)":
+      case MainMenuItem.RESTORE_ORIGINAL:
         handleRestoreOriginalClaude();
         break;
-      case "Open tweakcc.json":
+      case MainMenuItem.OPEN_CONFIG:
         handleOpenTweakccConfig();
         break;
-      case "Open Claude Code's cli.js":
+      case MainMenuItem.OPEN_CLI:
         handleOpenCliJs();
         break;
-      case "Exit":
-        console.log("Goodbye!");
+      case MainMenuItem.EXIT:
         process.exit(0);
         break;
     }

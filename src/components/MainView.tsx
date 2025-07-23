@@ -1,26 +1,26 @@
-import React from "react";
 import { Box, Text } from "ink";
 import { SelectInput } from "./SelectInput.js";
+import { MainMenuItem } from "../types.js";
 
 interface MainViewProps {
   selectedIndex: number;
   onSelect: (index: number) => void;
-  onSubmit: (item: string) => void;
+  onSubmit: (item: MainMenuItem) => void;
   changesApplied: boolean;
 }
 
 const baseMenuItems = [
-  "Themes",
-  "Launch text",
-  "Thinking verbs",
-  "Thinking style",
+  MainMenuItem.THEMES,
+  MainMenuItem.LAUNCH_TEXT,
+  MainMenuItem.THINKING_VERBS,
+  MainMenuItem.THINKING_STYLE,
 ];
 
 const systemMenuItems = [
-  "Restore original Claude Code (preserves tweakcc.json)",
-  "Open tweakcc.json",
-  "Open Claude Code's cli.js",
-  "Exit",
+  MainMenuItem.RESTORE_ORIGINAL,
+  MainMenuItem.OPEN_CONFIG,
+  MainMenuItem.OPEN_CLI,
+  MainMenuItem.EXIT,
 ];
 
 export function MainView({
@@ -30,7 +30,7 @@ export function MainView({
   changesApplied,
 }: MainViewProps) {
   const menuItems = [
-    ...(changesApplied ? [] : ["Apply changes to cli.js"]),
+    ...(changesApplied ? [] : [MainMenuItem.APPLY_CHANGES]),
     ...baseMenuItems,
     ...systemMenuItems,
   ];
@@ -60,7 +60,7 @@ export function MainView({
         items={menuItems}
         selectedIndex={selectedIndex}
         onSelect={onSelect}
-        onSubmit={onSubmit}
+        onSubmit={(item) => onSubmit(item as MainMenuItem)}
       />
     </Box>
   );
