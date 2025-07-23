@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { Box, Text, useInput } from "ink";
+import { useState } from 'react';
+import { Box, Text, useInput } from 'ink';
 
 interface ChangeNameViewProps {
   onBack: () => void;
 }
 
 export function ChangeNameView({ onBack }: ChangeNameViewProps) {
-  const [inputValue, setInputValue] = useState("Claude Code");
+  const [inputValue, setInputValue] = useState('Claude Code');
   const [isEditing, setIsEditing] = useState(false);
 
   useInput((input, key) => {
@@ -14,12 +14,12 @@ export function ChangeNameView({ onBack }: ChangeNameViewProps) {
       if (key.return) {
         setIsEditing(false);
       } else if (key.escape) {
-        setInputValue("Claude Code");
+        setInputValue('Claude Code');
         setIsEditing(false);
       } else if (key.backspace || key.delete) {
-        setInputValue((prev) => prev.slice(0, -1));
+        setInputValue(prev => prev.slice(0, -1));
       } else if (input) {
-        setInputValue((prev) => prev + input);
+        setInputValue(prev => prev + input);
       }
       return;
     }
@@ -35,11 +35,11 @@ export function ChangeNameView({ onBack }: ChangeNameViewProps) {
     <Box flexDirection="column">
       <Box marginBottom={1} flexDirection="column">
         <Text bold backgroundColor="#ffd500" color="black">
-          {" "}
-          Change name{" "}
+          {' '}
+          Change name{' '}
         </Text>
         <Box>
-          <Text dimColor>enter to {isEditing ? "save" : "edit"}</Text>
+          <Text dimColor>enter to {isEditing ? 'save' : 'edit'}</Text>
         </Box>
         <Box>
           <Text dimColor>esc to go back</Text>
@@ -48,20 +48,20 @@ export function ChangeNameView({ onBack }: ChangeNameViewProps) {
 
       <Box flexDirection="column">
         <Text>
-          <Text color={!isEditing ? "yellow" : undefined}>
-            {!isEditing ? "❯ " : "  "}
+          <Text color={!isEditing ? 'yellow' : undefined}>
+            {!isEditing ? '❯ ' : '  '}
           </Text>
-          <Text bold color={!isEditing ? "yellow" : undefined}>
+          <Text bold color={!isEditing ? 'yellow' : undefined}>
             Name
           </Text>
         </Text>
-        {isEditing && <Text dimColor>{"  "}enter to save, esc to cancel</Text>}
+        {isEditing && <Text dimColor>{'  '}enter to save, esc to cancel</Text>}
       </Box>
 
       <Box marginLeft={2} marginTop={1}>
         <Box
           borderStyle="round"
-          borderColor={isEditing ? "yellow" : "gray"}
+          borderColor={isEditing ? 'yellow' : 'gray'}
           paddingX={1}
         >
           <Text>

@@ -1,13 +1,13 @@
-import fs from "fs";
-import path from "path";
-import os from "os";
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
 import {
   Theme,
   LaunchTextConfig,
   ThinkingVerbsConfig,
   ThinkingStyleConfig,
-} from "../types.js";
+} from '../types.js';
 
 export interface TweakCCConfig {
   ccVersion: string;
@@ -22,9 +22,9 @@ export interface TweakCCConfig {
   };
 }
 
-const CONFIG_DIR = path.join(os.homedir(), ".tweakcc");
-const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
-const CLI_BACKUP_FILE = path.join(CONFIG_DIR, "cli.js.backup");
+const CONFIG_DIR = path.join(os.homedir(), '.tweakcc');
+const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
+const CLI_BACKUP_FILE = path.join(CONFIG_DIR, 'cli.js.backup');
 
 export function ensureConfigDir(): void {
   if (!fs.existsSync(CONFIG_DIR)) {
@@ -35,11 +35,11 @@ export function ensureConfigDir(): void {
 export function getConfig(): TweakCCConfig | null {
   try {
     if (fs.existsSync(CONFIG_FILE)) {
-      const content = fs.readFileSync(CONFIG_FILE, "utf8");
+      const content = fs.readFileSync(CONFIG_FILE, 'utf8');
       return JSON.parse(content);
     }
   } catch (error) {
-    console.error("Error reading config:", error);
+    console.error('Error reading config:', error);
   }
   return null;
 }
@@ -49,7 +49,7 @@ export function saveConfig(config: TweakCCConfig): void {
     ensureConfigDir();
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
   } catch (error) {
-    console.error("Error saving config:", error);
+    console.error('Error saving config:', error);
     throw error;
   }
 }
@@ -67,7 +67,7 @@ export function createBackup(sourcePath: string, version: string): void {
     };
     saveConfig(config);
   } catch (error) {
-    console.error("Error copying cli.js:", error);
+    console.error('Error copying cli.js:', error);
     throw error;
   }
 }
@@ -99,7 +99,7 @@ export function restoreFromBackup(originalCliPath: string): boolean {
 
     return true;
   } catch (error) {
-    console.error("Error restoring from backup:", error);
+    console.error('Error restoring from backup:', error);
     return false;
   }
 }
@@ -124,7 +124,7 @@ export function setChangesApplied(value: boolean): void {
 
 export function saveThemesToConfig(themes: Theme[]): void {
   const config = getConfig() || {
-    ccVersion: "",
+    ccVersion: '',
     lastModified: new Date().toISOString(),
   };
   if (!config.settings) config.settings = {};
@@ -137,7 +137,7 @@ export function saveLaunchTextToConfig(
   launchTextConfig: LaunchTextConfig
 ): void {
   const config = getConfig() || {
-    ccVersion: "",
+    ccVersion: '',
     lastModified: new Date().toISOString(),
   };
   if (!config.settings) config.settings = {};
@@ -150,7 +150,7 @@ export function saveThinkingVerbsToConfig(
   thinkingVerbsConfig: ThinkingVerbsConfig
 ): void {
   const config = getConfig() || {
-    ccVersion: "",
+    ccVersion: '',
     lastModified: new Date().toISOString(),
   };
   if (!config.settings) config.settings = {};
@@ -163,7 +163,7 @@ export function saveThinkingStyleToConfig(
   thinkingStyleConfig: ThinkingStyleConfig
 ): void {
   const config = getConfig() || {
-    ccVersion: "",
+    ccVersion: '',
     lastModified: new Date().toISOString(),
   };
   if (!config.settings) config.settings = {};

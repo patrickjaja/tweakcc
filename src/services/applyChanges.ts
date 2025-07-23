@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync } from "fs";
-import figlet from "figlet";
+import { readFileSync, writeFileSync } from 'fs';
+import figlet from 'figlet';
 import {
   writeThemes,
   writeSigninBannerText,
@@ -9,9 +9,14 @@ import {
   writeThinkerSymbolChars,
   writeThinkerSymbolSpeed,
   writeThinkerSymbolMirrorOption,
-} from "./cliModifier.js";
-import { getAllConfigData, setChangesApplied } from "./configManager.js";
-import { Theme, LaunchTextConfig, ThinkingVerbsConfig, ThinkingStyleConfig } from "../types.js";
+} from './cliModifier.js';
+import { getAllConfigData, setChangesApplied } from './configManager.js';
+import {
+  Theme,
+  LaunchTextConfig,
+  ThinkingVerbsConfig,
+  ThinkingStyleConfig,
+} from '../types.js';
 
 interface ApplyResult {
   success: boolean;
@@ -19,34 +24,39 @@ interface ApplyResult {
   message: string;
 }
 
-function applyThemes(content: string, themes: Theme[]): { content: string; success: boolean } {
+function applyThemes(
+  content: string,
+  themes: Theme[]
+): { content: string; success: boolean } {
   if (!themes.length) {
     return { content, success: true };
   }
 
   const result = writeThemes(content, themes);
   if (result) {
-    console.log("✓ Themes applied successfully");
+    console.log('✓ Themes applied successfully');
     return { content: result, success: true };
   } else {
-    console.log("❌ Themes: Failed to find location in CLI file");
+    console.log('❌ Themes: Failed to find location in CLI file');
     return { content, success: false };
   }
 }
 
-function applyLaunchText(content: string, config: LaunchTextConfig): { content: string; success: boolean } {
-  let textToApply = "";
+function applyLaunchText(
+  content: string,
+  config: LaunchTextConfig
+): { content: string; success: boolean } {
+  let textToApply = '';
 
-  if (config.method === "custom" && config.customText) {
+  if (config.method === 'custom' && config.customText) {
     textToApply = config.customText;
-  } else if (config.method === "figlet" && config.figletText) {
+  } else if (config.method === 'figlet' && config.figletText) {
     try {
-      textToApply = figlet.textSync(
-        config.figletText.replace("\n", " "),
-        { font: config.figletFont as any }
-      );
-    } catch (error) {
-      console.log("❌ Launch Text: Failed to generate figlet text");
+      textToApply = figlet.textSync(config.figletText.replace('\n', ' '), {
+        font: config.figletFont as unknown as figlet.Fonts,
+      });
+    } catch {
+      console.log('❌ Launch Text: Failed to generate figlet text');
       return { content, success: false };
     }
   }
@@ -54,10 +64,10 @@ function applyLaunchText(content: string, config: LaunchTextConfig): { content: 
   if (textToApply) {
     const result = writeSigninBannerText(content, textToApply);
     if (result) {
-      console.log("✓ Launch text applied successfully");
+      console.log('✓ Launch text applied successfully');
       return { content: result, success: true };
     } else {
-      console.log("❌ Launch Text: Failed to find location in CLI file");
+      console.log('❌ Launch Text: Failed to find location in CLI file');
       return { content, success: false };
     }
   }
@@ -65,68 +75,88 @@ function applyLaunchText(content: string, config: LaunchTextConfig): { content: 
   return { content, success: true };
 }
 
-function applyThinkingVerbs(content: string, config: ThinkingVerbsConfig): { content: string; success: boolean } {
+function applyThinkingVerbs(
+  content: string,
+  config: ThinkingVerbsConfig
+): { content: string; success: boolean } {
   let currentContent = content;
   let allSucceeded = true;
 
-  const haikuResult = writeUseHaikuVerbs(currentContent, config.useHaikuGenerated);
+  const haikuResult = writeUseHaikuVerbs(
+    currentContent,
+    config.useHaikuGenerated
+  );
   if (haikuResult) {
     currentContent = haikuResult;
-    console.log("✓ Haiku verbs setting applied successfully");
+    console.log('✓ Haiku verbs setting applied successfully');
   } else {
-    console.log("❌ Use Haiku Verbs: Failed to find location in CLI file");
+    console.log('❌ Use Haiku Verbs: Failed to find location in CLI file');
     allSucceeded = false;
   }
 
   const verbsResult = writeThinkerVerbs(currentContent, config.verbs);
   if (verbsResult) {
     currentContent = verbsResult;
-    console.log("✓ Thinking verbs applied successfully");
+    console.log('✓ Thinking verbs applied successfully');
   } else {
-    console.log("❌ Thinker Verbs: Failed to find location in CLI file");
+    console.log('❌ Thinker Verbs: Failed to find location in CLI file');
     allSucceeded = false;
   }
 
-  const punctResult = writeThinkerPunctuation(currentContent, config.punctuation);
+  const punctResult = writeThinkerPunctuation(
+    currentContent,
+    config.punctuation
+  );
   if (punctResult) {
     currentContent = punctResult;
-    console.log("✓ Thinking punctuation applied successfully");
+    console.log('✓ Thinking punctuation applied successfully');
   } else {
-    console.log("❌ Thinker Punctuation: Failed to find location in CLI file");
+    console.log('❌ Thinker Punctuation: Failed to find location in CLI file');
     allSucceeded = false;
   }
 
   return { content: currentContent, success: allSucceeded };
 }
 
-function applyThinkingStyle(content: string, config: ThinkingStyleConfig): { content: string; success: boolean } {
+function applyThinkingStyle(
+  content: string,
+  config: ThinkingStyleConfig
+): { content: string; success: boolean } {
   let currentContent = content;
   let allSucceeded = true;
 
   const charsResult = writeThinkerSymbolChars(currentContent, config.phases);
   if (charsResult) {
     currentContent = charsResult;
-    console.log("✓ Thinking style characters applied successfully");
+    console.log('✓ Thinking style characters applied successfully');
   } else {
-    console.log("❌ Thinker Symbol Chars: Failed to find location in CLI file");
+    console.log('❌ Thinker Symbol Chars: Failed to find location in CLI file');
     allSucceeded = false;
   }
 
-  const speedResult = writeThinkerSymbolSpeed(currentContent, config.updateInterval);
+  const speedResult = writeThinkerSymbolSpeed(
+    currentContent,
+    config.updateInterval
+  );
   if (speedResult) {
     currentContent = speedResult;
-    console.log("✓ Thinking style speed applied successfully");
+    console.log('✓ Thinking style speed applied successfully');
   } else {
-    console.log("❌ Thinker Symbol Speed: Failed to find location in CLI file");
+    console.log('❌ Thinker Symbol Speed: Failed to find location in CLI file');
     allSucceeded = false;
   }
 
-  const mirrorResult = writeThinkerSymbolMirrorOption(currentContent, config.reverseMirror);
+  const mirrorResult = writeThinkerSymbolMirrorOption(
+    currentContent,
+    config.reverseMirror
+  );
   if (mirrorResult) {
     currentContent = mirrorResult;
-    console.log("✓ Thinking style mirror option applied successfully");
+    console.log('✓ Thinking style mirror option applied successfully');
   } else {
-    console.log("❌ Thinker Symbol Mirror Option: Failed to find location in CLI file");
+    console.log(
+      '❌ Thinker Symbol Mirror Option: Failed to find location in CLI file'
+    );
     allSucceeded = false;
   }
 
@@ -138,11 +168,11 @@ export function applyAllChanges(cliPath: string): ApplyResult {
     return {
       success: false,
       changesMade: false,
-      message: "No CLI path found. Cannot apply changes.",
+      message: 'No CLI path found. Cannot apply changes.',
     };
   }
 
-  let content = readFileSync(cliPath, "utf8");
+  let content = readFileSync(cliPath, 'utf8');
   let changesMade = false;
   let allSucceeded = true;
 
@@ -196,11 +226,11 @@ export function applyAllChanges(cliPath: string): ApplyResult {
     try {
       writeFileSync(cliPath, content);
       setChangesApplied(true);
-      
-      const message = allSucceeded 
-        ? "All changes applied successfully!"
-        : "Changes applied with some warnings. Check console for details.";
-      
+
+      const message = allSucceeded
+        ? 'All changes applied successfully!'
+        : 'Changes applied with some warnings. Check console for details.';
+
       return {
         success: true,
         changesMade: true,
@@ -217,7 +247,7 @@ export function applyAllChanges(cliPath: string): ApplyResult {
     return {
       success: true,
       changesMade: false,
-      message: "No changes to apply.",
+      message: 'No changes to apply.',
     };
   }
 }

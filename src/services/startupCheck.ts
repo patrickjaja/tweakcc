@@ -1,14 +1,9 @@
-import {
-  findClijs,
-  getRealCcVersion,
-  getSearchedLocations,
-} from "./cliDetector.js";
+import { findClijs, getSearchedLocations } from './cliDetector.js';
 import {
   backupCliExists,
   getConfigCcVersion,
   createBackup,
-  getBackupCliPath,
-} from "./configManager.js";
+} from './configManager.js';
 
 export interface StartupCheckResult {
   success: boolean;
@@ -72,15 +67,13 @@ export async function checkClijs(): Promise<StartupCheckResult> {
   }
 }
 
-export function handleVersionUpdate(
-  applyModifications: boolean = true
-): StartupCheckResult {
+export function handleVersionUpdate(): StartupCheckResult {
   try {
     const claudePaths = findClijs();
     if (!claudePaths) {
       return {
         success: false,
-        error: "Could not find Claude Code installation for update",
+        error: 'Could not find Claude Code installation for update',
       };
     }
 

@@ -8,6 +8,7 @@ pnpm-debug.log*
 # Production builds
 dist/
 build/
+*.tgz
 
 # Environment variables
 .env
@@ -39,3 +40,5 @@ debug.log
 # Temporary files
 *.tmp
 *.temp
+
+*.tsbuildinfo

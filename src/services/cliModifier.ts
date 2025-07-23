@@ -1,4 +1,4 @@
-import { Theme } from "../types.js";
+import { Theme } from '../types.js';
 
 export interface LocationResult {
   startIndex: number;
@@ -76,7 +76,7 @@ export function getThemesLocation(oldFile: string): {
   const switchMatch = oldFile.match(switchPattern);
 
   if (!switchMatch || switchMatch.index == undefined) {
-    console.log("Failed to find switchMatch");
+    console.log('Failed to find switchMatch');
     return null;
   }
 
@@ -86,12 +86,12 @@ export function getThemesLocation(oldFile: string): {
   const objMatch = oldFile.match(objPat);
 
   if (!objArrMatch || objArrMatch.index == undefined) {
-    console.log("Failed to find objArrMatch");
+    console.log('Failed to find objArrMatch');
     return null;
   }
 
   if (!objMatch || objMatch.index == undefined) {
-    console.log("Failed to find objMatch");
+    console.log('Failed to find objMatch');
     return null;
   }
 
@@ -112,7 +112,7 @@ export function getThemesLocation(oldFile: string): {
   };
 }
 
-export function writeThemes(oldFile: string, themes: any[]): string | null {
+export function writeThemes(oldFile: string, themes: Theme[]): string | null {
   const locations = getThemesLocation(oldFile);
   if (!locations) {
     return null;
@@ -128,9 +128,9 @@ export function writeThemes(oldFile: string, themes: any[]): string | null {
 
   // Update theme mapping object (obj)
   const obj =
-    "return" +
+    'return' +
     JSON.stringify(
-      Object.fromEntries(themes.map((theme) => [theme.id, theme.name]))
+      Object.fromEntries(themes.map(theme => [theme.id, theme.name]))
     );
   newFile =
     newFile.slice(0, locations.obj.startIndex) +
@@ -147,7 +147,7 @@ export function writeThemes(oldFile: string, themes: any[]): string | null {
 
   // Update theme options array (objArr)
   const objArr = JSON.stringify(
-    themes.map((theme) => ({ label: theme.name, value: theme.id }))
+    themes.map(theme => ({ label: theme.name, value: theme.id }))
   );
   newFile =
     newFile.slice(0, locations.objArr.startIndex) +
@@ -164,7 +164,7 @@ export function writeThemes(oldFile: string, themes: any[]): string | null {
 
   // Update switch statement
   let switchStatement = `switch(${locations.switchStatement.variableName}){\n`;
-  themes.forEach((theme) => {
+  themes.forEach(theme => {
     switchStatement += `case"${theme.id}":return${JSON.stringify(
       theme.colors
     )};\n`;
@@ -359,8 +359,8 @@ export function writeThinkerVerbs(
     return null;
   }
 
-  const verbsJson = "=" + JSON.stringify(verbs);
-  const badVerbsReplacement = "new Set([])";
+  const verbsJson = '=' + JSON.stringify(verbs);
+  const badVerbsReplacement = 'new Set([])';
   const newFile =
     oldFile.slice(0, location.okayVerbs.startIndex) +
     verbsJson +
@@ -458,7 +458,8 @@ export function writeThinkerSymbolMirrorOption(
   return newFile;
 }
 
-// Main modification application function
+// Debug function for showing diffs (currently disabled)
+/* eslint-disable @typescript-eslint/no-unused-vars */
 function showDiff(
   oldFileContents: string,
   newFileContents: string,
@@ -492,3 +493,4 @@ function showDiff(
   // console.log("NEW:", newBefore + `\x1b[32m${newChanged}\x1b[0m` + newAfter);
   // console.log("--- End Diff ---\n");
 }
+/* eslint-enable @typescript-eslint/no-unused-vars */

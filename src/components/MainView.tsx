@@ -1,6 +1,6 @@
-import { Box, Text } from "ink";
-import { SelectInput } from "./SelectInput.js";
-import { MainMenuItem } from "../types.js";
+import { Box, Text } from 'ink';
+import { SelectInput } from './SelectInput.js';
+import { MainMenuItem } from '../types.js';
 
 interface MainViewProps {
   selectedIndex: number;
@@ -38,21 +38,21 @@ export function MainView({
     <Box flexDirection="column">
       <Box marginBottom={1}>
         <Text bold backgroundColor="#ffd500" color="black">
-          {" "}
-          Tweak Claude Code{" "}
+          {' '}
+          Tweak Claude Code{' '}
         </Text>
       </Box>
       <Box marginBottom={1}>
         <Text color="gray">
-          <Text bold>Customize your Claude Code installation.</Text>{" "}
+          <Text bold>Customize your Claude Code installation.</Text>{' '}
           <Text dimColor>Settings will be saved to a JSON file.</Text>
         </Text>
       </Box>
       <Box marginBottom={1}>
         <Text color="gray">
           Note that when you update Claude Code, your customizations will be
-          lost, and you'll have to use the 'Apply settings' menu below to
-          reapply them again.
+          lost, and you&apos;ll have to use the &apos;Apply settings&apos; menu
+          below to reapply them again.
         </Text>
       </Box>
 
@@ -60,7 +60,7 @@ export function MainView({
         items={menuItems}
         selectedIndex={selectedIndex}
         onSelect={onSelect}
-        onSubmit={(item) => onSubmit(item as MainMenuItem)}
+        onSubmit={item => onSubmit(item as MainMenuItem)}
       />
     </Box>
   );

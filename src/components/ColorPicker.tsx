@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Box, Text, useInput } from "ink";
+import { useState, useEffect, Fragment } from 'react';
+import { Box, Text, useInput } from 'ink';
 
 interface ColorPickerProps {
   initialValue: string;
@@ -7,7 +7,7 @@ interface ColorPickerProps {
   onExit: () => void;
   onCancel: () => void;
   colorKey?: string; // Add colorKey to identify diff colors
-  theme?: any; // Add theme for text color
+  theme?: { colors?: { text?: string; permission?: string } }; // Add theme for text color
 }
 
 interface HSL {
@@ -40,10 +40,10 @@ export function ColorPicker({
 
   const [hsl, setHsl] = useState<HSL>(initialHsl);
   const [rgb, setRgb] = useState<RGB>(initialRgb);
-  const [sliderMode, setSliderMode] = useState<"hsl" | "rgb">("hsl");
+  const [sliderMode, setSliderMode] = useState<'hsl' | 'rgb'>('hsl');
   const [selectedBar, setSelectedBar] = useState<
-    "h" | "s" | "l" | "r" | "g" | "b"
-  >("h");
+    'h' | 's' | 'l' | 'r' | 'g' | 'b'
+  >('h');
   const [updating, setUpdating] = useState(false);
 
   // Update values when initialValue changes (for prop changes)
@@ -71,48 +71,48 @@ export function ColorPicker({
       onExit();
     } else if (key.escape) {
       onCancel();
-    } else if (key.ctrl && input === "a") {
+    } else if (key.ctrl && input === 'a') {
       // Switch between HSL and RGB sliders
-      setSliderMode((prev) => (prev === "hsl" ? "rgb" : "hsl"));
-      setSelectedBar((prev) => {
-        if (sliderMode === "hsl") {
+      setSliderMode(prev => (prev === 'hsl' ? 'rgb' : 'hsl'));
+      setSelectedBar(prev => {
+        if (sliderMode === 'hsl') {
           // Switching to RGB
-          if (prev === "h") return "r";
-          if (prev === "s") return "g";
-          return "b";
+          if (prev === 'h') return 'r';
+          if (prev === 's') return 'g';
+          return 'b';
         } else {
           // Switching to HSL
-          if (prev === "r") return "h";
-          if (prev === "g") return "s";
-          return "l";
+          if (prev === 'r') return 'h';
+          if (prev === 'g') return 's';
+          return 'l';
         }
       });
     } else if (key.upArrow) {
-      if (sliderMode === "hsl") {
-        setSelectedBar((prev) => {
-          if (prev === "h") return "l";
-          if (prev === "s") return "h";
-          return "s";
+      if (sliderMode === 'hsl') {
+        setSelectedBar(prev => {
+          if (prev === 'h') return 'l';
+          if (prev === 's') return 'h';
+          return 's';
         });
       } else {
-        setSelectedBar((prev) => {
-          if (prev === "r") return "b";
-          if (prev === "g") return "r";
-          return "g";
+        setSelectedBar(prev => {
+          if (prev === 'r') return 'b';
+          if (prev === 'g') return 'r';
+          return 'g';
         });
       }
     } else if (key.downArrow || key.tab) {
-      if (sliderMode === "hsl") {
-        setSelectedBar((prev) => {
-          if (prev === "h") return "s";
-          if (prev === "s") return "l";
-          return "h";
+      if (sliderMode === 'hsl') {
+        setSelectedBar(prev => {
+          if (prev === 'h') return 's';
+          if (prev === 's') return 'l';
+          return 'h';
         });
       } else {
-        setSelectedBar((prev) => {
-          if (prev === "r") return "g";
-          if (prev === "g") return "b";
-          return "r";
+        setSelectedBar(prev => {
+          if (prev === 'r') return 'g';
+          if (prev === 'g') return 'b';
+          return 'r';
         });
       }
     } else if (key.leftArrow) {
@@ -127,14 +127,14 @@ export function ColorPicker({
   const adjustValue = (delta: number) => {
     setUpdating(true);
 
-    if (sliderMode === "hsl") {
-      setHsl((prev) => {
+    if (sliderMode === 'hsl') {
+      setHsl(prev => {
         const newHsl = { ...prev };
-        if (selectedBar === "h") {
+        if (selectedBar === 'h') {
           newHsl.h = Math.max(0, Math.min(360, prev.h + delta));
-        } else if (selectedBar === "s") {
+        } else if (selectedBar === 's') {
           newHsl.s = Math.max(0, Math.min(100, prev.s + delta));
-        } else if (selectedBar === "l") {
+        } else if (selectedBar === 'l') {
           newHsl.l = Math.max(0, Math.min(100, prev.l + delta));
         }
 
@@ -145,13 +145,13 @@ export function ColorPicker({
         return newHsl;
       });
     } else {
-      setRgb((prev) => {
+      setRgb(prev => {
         const newRgb = { ...prev };
-        if (selectedBar === "r") {
+        if (selectedBar === 'r') {
           newRgb.r = Math.max(0, Math.min(255, prev.r + delta));
-        } else if (selectedBar === "g") {
+        } else if (selectedBar === 'g') {
           newRgb.g = Math.max(0, Math.min(255, prev.g + delta));
-        } else if (selectedBar === "b") {
+        } else if (selectedBar === 'b') {
           newRgb.b = Math.max(0, Math.min(255, prev.b + delta));
         }
 
@@ -287,7 +287,7 @@ export function ColorPicker({
 
       segments.push(
         <Text key={i} backgroundColor={`rgb(${r},${g},${b})`}>
-          {" "}
+          {' '}
         </Text>
       );
     }
@@ -301,7 +301,7 @@ export function ColorPicker({
       const [r, g, b] = hslToRgb(hsl.h, saturation, hsl.l);
       segments.push(
         <Text key={i} backgroundColor={`rgb(${r},${g},${b})`}>
-          {" "}
+          {' '}
         </Text>
       );
     }
@@ -315,7 +315,7 @@ export function ColorPicker({
       const [r, g, b] = hslToRgb(hsl.h, hsl.s, lightness);
       segments.push(
         <Text key={i} backgroundColor={`rgb(${r},${g},${b})`}>
-          {" "}
+          {' '}
         </Text>
       );
     }
@@ -328,7 +328,7 @@ export function ColorPicker({
   };
 
   const rgbToHex = (r: number, g: number, b: number) => {
-    const toHex = (n: number) => n.toString(16).padStart(2, "0");
+    const toHex = (n: number) => n.toString(16).padStart(2, '0');
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
   };
 
@@ -338,7 +338,7 @@ export function ColorPicker({
       const red = Math.round((i / 39) * 255);
       segments.push(
         <Text key={i} backgroundColor={`rgb(${red},${rgb.g},${rgb.b})`}>
-          {" "}
+          {' '}
         </Text>
       );
     }
@@ -351,7 +351,7 @@ export function ColorPicker({
       const green = Math.round((i / 39) * 255);
       segments.push(
         <Text key={i} backgroundColor={`rgb(${rgb.r},${green},${rgb.b})`}>
-          {" "}
+          {' '}
         </Text>
       );
     }
@@ -364,7 +364,7 @@ export function ColorPicker({
       const blue = Math.round((i / 39) * 255);
       segments.push(
         <Text key={i} backgroundColor={`rgb(${rgb.r},${rgb.g},${blue})`}>
-          {" "}
+          {' '}
         </Text>
       );
     }
@@ -403,61 +403,61 @@ export function ColorPicker({
         </Box>
       </Box>
 
-      {sliderMode === "hsl" ? (
+      {sliderMode === 'hsl' ? (
         <>
           <Box marginBottom={1}>
             <Box width={25}>
-              <Text color={selectedBar === "h" ? "yellow" : "white"}>
-                {selectedBar === "h" ? "❯ " : "  "}Hue ({hsl.h}°):
+              <Text color={selectedBar === 'h' ? 'yellow' : 'white'}>
+                {selectedBar === 'h' ? '❯ ' : '  '}Hue ({hsl.h}°):
               </Text>
             </Box>
             <Box>
               {createHueGradient().map((segment, i) => (
-                <React.Fragment key={i}>
+                <Fragment key={i}>
                   {i === getMarkerPosition(hsl.h, 360) ? (
                     <Text>|</Text>
                   ) : (
                     segment
                   )}
-                </React.Fragment>
+                </Fragment>
               ))}
             </Box>
           </Box>
 
           <Box marginBottom={1}>
             <Box width={25}>
-              <Text color={selectedBar === "s" ? "yellow" : "white"}>
-                {selectedBar === "s" ? "❯ " : "  "}Saturation ({hsl.s}%):
+              <Text color={selectedBar === 's' ? 'yellow' : 'white'}>
+                {selectedBar === 's' ? '❯ ' : '  '}Saturation ({hsl.s}%):
               </Text>
             </Box>
             <Box>
               {createSaturationGradient().map((segment, i) => (
-                <React.Fragment key={i}>
+                <Fragment key={i}>
                   {i === getMarkerPosition(hsl.s, 100) ? (
                     <Text>|</Text>
                   ) : (
                     segment
                   )}
-                </React.Fragment>
+                </Fragment>
               ))}
             </Box>
           </Box>
 
           <Box marginBottom={1}>
             <Box width={25}>
-              <Text color={selectedBar === "l" ? "yellow" : "white"}>
-                {selectedBar === "l" ? "❯ " : "  "}Lightness ({hsl.l}%):
+              <Text color={selectedBar === 'l' ? 'yellow' : 'white'}>
+                {selectedBar === 'l' ? '❯ ' : '  '}Lightness ({hsl.l}%):
               </Text>
             </Box>
             <Box>
               {createLightnessGradient().map((segment, i) => (
-                <React.Fragment key={i}>
+                <Fragment key={i}>
                   {i === getMarkerPosition(hsl.l, 100) ? (
                     <Text>|</Text>
                   ) : (
                     segment
                   )}
-                </React.Fragment>
+                </Fragment>
               ))}
             </Box>
           </Box>
@@ -466,57 +466,57 @@ export function ColorPicker({
         <>
           <Box marginBottom={1}>
             <Box width={25}>
-              <Text color={selectedBar === "r" ? "yellow" : "white"}>
-                {selectedBar === "r" ? "❯ " : "  "}Red ({rgb.r}):
+              <Text color={selectedBar === 'r' ? 'yellow' : 'white'}>
+                {selectedBar === 'r' ? '❯ ' : '  '}Red ({rgb.r}):
               </Text>
             </Box>
             <Box>
               {createRedGradient().map((segment, i) => (
-                <React.Fragment key={i}>
+                <Fragment key={i}>
                   {i === getMarkerPosition(rgb.r, 255) ? (
                     <Text>|</Text>
                   ) : (
                     segment
                   )}
-                </React.Fragment>
+                </Fragment>
               ))}
             </Box>
           </Box>
 
           <Box marginBottom={1}>
             <Box width={25}>
-              <Text color={selectedBar === "g" ? "yellow" : "white"}>
-                {selectedBar === "g" ? "❯ " : "  "}Green ({rgb.g}):
+              <Text color={selectedBar === 'g' ? 'yellow' : 'white'}>
+                {selectedBar === 'g' ? '❯ ' : '  '}Green ({rgb.g}):
               </Text>
             </Box>
             <Box>
               {createGreenGradient().map((segment, i) => (
-                <React.Fragment key={i}>
+                <Fragment key={i}>
                   {i === getMarkerPosition(rgb.g, 255) ? (
                     <Text>|</Text>
                   ) : (
                     segment
                   )}
-                </React.Fragment>
+                </Fragment>
               ))}
             </Box>
           </Box>
 
           <Box marginBottom={1}>
             <Box width={25}>
-              <Text color={selectedBar === "b" ? "yellow" : "white"}>
-                {selectedBar === "b" ? "❯ " : "  "}Blue ({rgb.b}):
+              <Text color={selectedBar === 'b' ? 'yellow' : 'white'}>
+                {selectedBar === 'b' ? '❯ ' : '  '}Blue ({rgb.b}):
               </Text>
             </Box>
             <Box>
               {createBlueGradient().map((segment, i) => (
-                <React.Fragment key={i}>
+                <Fragment key={i}>
                   {i === getMarkerPosition(rgb.b, 255) ? (
                     <Text>|</Text>
                   ) : (
                     segment
                   )}
-                </React.Fragment>
+                </Fragment>
               ))}
             </Box>
           </Box>
@@ -525,21 +525,21 @@ export function ColorPicker({
 
       <Box marginBottom={1}>
         <Text>Current: </Text>
-        <Text backgroundColor={getCurrentColor()}>{"        "}</Text>
+        <Text backgroundColor={getCurrentColor()}>{'        '}</Text>
       </Box>
 
       <Box flexDirection="row" justifyContent="space-between">
         <Box flexDirection="column">
           <Text dimColor>Hex </Text>
-          {colorKey?.startsWith("diff") ? (
+          {colorKey?.startsWith('diff') ? (
             <Text
               backgroundColor={getCurrentColor()}
-              color={theme?.colors?.text || "white"}
+              color={theme?.colors?.text || 'white'}
               bold
             >
               {rgbToHex(rgb.r, rgb.g, rgb.b)}
             </Text>
-          ) : colorKey === "inverseText" ? (
+          ) : colorKey === 'inverseText' ? (
             <Text
               color={getCurrentColor()}
               backgroundColor={theme?.colors?.permission}
@@ -556,15 +556,15 @@ export function ColorPicker({
 
         <Box flexDirection="column">
           <Text dimColor>RGB </Text>
-          {colorKey?.startsWith("diff") ? (
+          {colorKey?.startsWith('diff') ? (
             <Text
               backgroundColor={getCurrentColor()}
-              color={theme?.colors?.text || "white"}
+              color={theme?.colors?.text || 'white'}
               bold
             >
               {`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`}
             </Text>
-          ) : colorKey === "inverseText" ? (
+          ) : colorKey === 'inverseText' ? (
             <Text
               color={getCurrentColor()}
               backgroundColor={theme?.colors?.permission}
@@ -582,15 +582,15 @@ export function ColorPicker({
 
         <Box flexDirection="column">
           <Text dimColor>HSL </Text>
-          {colorKey?.startsWith("diff") ? (
+          {colorKey?.startsWith('diff') ? (
             <Text
               backgroundColor={getCurrentColor()}
-              color={theme?.colors?.text || "white"}
+              color={theme?.colors?.text || 'white'}
               bold
             >
               {`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`}
             </Text>
-          ) : colorKey === "inverseText" ? (
+          ) : colorKey === 'inverseText' ? (
             <Text
               color={getCurrentColor()}
               backgroundColor={theme?.colors?.permission}

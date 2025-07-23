@@ -28,7 +28,7 @@ export interface Theme {
 }
 
 export interface LaunchTextConfig {
-  method: "figlet" | "custom";
+  method: 'figlet' | 'custom';
   figletText: string;
   figletFont: string;
   customText: string;
@@ -47,23 +47,23 @@ export interface ThinkingStyleConfig {
 }
 
 export type ViewType =
-  | "main"
-  | "themes"
-  | "themeEdit"
-  | "launchText"
-  | "thinkingVerbs"
-  | "thinkingStyle";
+  | 'main'
+  | 'themes'
+  | 'themeEdit'
+  | 'launchText'
+  | 'thinkingVerbs'
+  | 'thinkingStyle';
 
 export enum MainMenuItem {
-  THEMES = "Themes",
-  LAUNCH_TEXT = "Launch text",
-  THINKING_VERBS = "Thinking verbs",
-  THINKING_STYLE = "Thinking style",
-  APPLY_CHANGES = "Apply changes to cli.js",
-  RESTORE_ORIGINAL = "Restore original Claude Code (preserves tweakcc.json)",
-  OPEN_CONFIG = "Open tweakcc.json",
+  THEMES = 'Themes',
+  LAUNCH_TEXT = 'Launch text',
+  THINKING_VERBS = 'Thinking verbs',
+  THINKING_STYLE = 'Thinking style',
+  APPLY_CHANGES = 'Apply changes to cli.js',
+  RESTORE_ORIGINAL = 'Restore original Claude Code (preserves tweakcc.json)',
+  OPEN_CONFIG = 'Open tweakcc.json',
   OPEN_CLI = "Open Claude Code's cli.js",
-  EXIT = "Exit",
+  EXIT = 'Exit',
 }
 
 export interface AppState {

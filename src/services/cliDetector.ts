@@ -1,6 +1,6 @@
-import fs from "fs";
-import path from "path";
-import os from "os";
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
 export interface ClaudeCodePaths {
   cliPath: string;
@@ -9,7 +9,7 @@ export interface ClaudeCodePaths {
 }
 
 // prettier-ignore
-let SEARCH_PATHS = [
+const SEARCH_PATHS = [
   // Volta installation
   path.join(os.homedir(), "AppData", "Local", "Volta", "tools", "image", "packages", "@anthropic-ai", "claude-code", "node_modules", "@anthropic-ai", "claude-code"),
   // NPM global installations
@@ -22,21 +22,38 @@ let SEARCH_PATHS = [
 
 // n
 if (process.env.N_PREFIX) {
-  SEARCH_PATHS.push(path.join(process.env.N_PREFIX, "lib", "node_modules", "@anthropic-ai", "claude-code"));
+  SEARCH_PATHS.push(
+    path.join(
+      process.env.N_PREFIX,
+      'lib',
+      'node_modules',
+      '@anthropic-ai',
+      'claude-code'
+    )
+  );
 }
 if (process.platform != 'win32') {
-  SEARCH_PATHS.push(path.join("/usr", "local", "lib", "node_modules", "@anthropic-ai", "claude-code"));
+  SEARCH_PATHS.push(
+    path.join(
+      '/usr',
+      'local',
+      'lib',
+      'node_modules',
+      '@anthropic-ai',
+      'claude-code'
+    )
+  );
 }
 
 export function findClijs(): ClaudeCodePaths | null {
   process.stdout.write("Searching for Claude Code's cli.js\r");
   for (const searchPath of SEARCH_PATHS) {
     try {
-      const cliPath = path.join(searchPath, "cli.js");
-      const packageJsonPath = path.join(searchPath, "package.json");
+      const cliPath = path.join(searchPath, 'cli.js');
+      const packageJsonPath = path.join(searchPath, 'package.json');
       if (fs.existsSync(cliPath) && fs.existsSync(packageJsonPath)) {
         const packageJson = JSON.parse(
-          fs.readFileSync(packageJsonPath, "utf8")
+          fs.readFileSync(packageJsonPath, 'utf8')
         );
         return {
           cliPath: cliPath,
@@ -44,7 +61,7 @@ export function findClijs(): ClaudeCodePaths | null {
           version: packageJson.version,
         };
       }
-    } catch (error) {
+    } catch {
       // Continue searching if this path fails
       continue;
     }
@@ -59,7 +76,7 @@ export function getRealCcVersion(): string | null {
 }
 
 export function getSearchedLocations(): string {
-  return SEARCH_PATHS.map((p) => `- ${p}`).join("\n");
+  return SEARCH_PATHS.map(p => `- ${p}`).join('\n');
 }
 
 export function validateCliJsExists(cliPath: string): boolean {

@@ -1,16 +1,15 @@
-import { useState, useEffect } from "react";
-import { Box, useInput, Text } from "ink";
-import { spawn } from "child_process";
-import { existsSync, writeFileSync, mkdirSync, readFileSync } from "fs";
-import { homedir } from "os";
-import { join, dirname } from "path";
-import figlet from "figlet";
-import { MainView } from "./components/MainView.js";
-import { ThemesView } from "./components/ThemesView.js";
-import { ThemeEditView } from "./components/ThemeEditView.js";
-import { LaunchTextView } from "./components/LaunchTextView.js";
-import { ThinkingVerbsView } from "./components/ThinkingVerbsView.js";
-import { ThinkingStyleView } from "./components/ThinkingStyleView.js";
+import { useState, useEffect } from 'react';
+import { Box, useInput, Text } from 'ink';
+import { spawn } from 'child_process';
+import { existsSync, writeFileSync, mkdirSync } from 'fs';
+import { homedir } from 'os';
+import { join, dirname } from 'path';
+import { MainView } from './components/MainView.js';
+import { ThemesView } from './components/ThemesView.js';
+import { ThemeEditView } from './components/ThemeEditView.js';
+import { LaunchTextView } from './components/LaunchTextView.js';
+import { ThinkingVerbsView } from './components/ThinkingVerbsView.js';
+import { ThinkingStyleView } from './components/ThinkingStyleView.js';
 import {
   AppState,
   Theme,
@@ -18,10 +17,10 @@ import {
   ThinkingVerbsConfig,
   ThinkingStyleConfig,
   MainMenuItem,
-} from "./types.js";
-import { themes } from "./themes.js";
-import { checkClijs, handleVersionUpdate } from "./services/startupCheck.js";
-import { applyAllChanges } from "./services/applyChanges.js";
+} from './types.js';
+import { themes } from './themes.js';
+import { checkClijs, handleVersionUpdate } from './services/startupCheck.js';
+import { applyAllChanges } from './services/applyChanges.js';
 import {
   setChangesApplied,
   saveThemesToConfig,
@@ -30,12 +29,12 @@ import {
   restoreFromBackup,
   saveThinkingStyleToConfig,
   getAllConfigData,
-} from "./services/configManager.js";
-import { findClijs } from "./services/cliDetector.js";
+} from './services/configManager.js';
+import { findClijs } from './services/cliDetector.js';
 
 export default function App() {
   const [state, setState] = useState<AppState>({
-    currentView: "main",
+    currentView: 'main',
     selectedMainIndex: 0,
     selectedThemeIndex: 0,
   });
@@ -53,21 +52,21 @@ export default function App() {
       const result = await checkClijs();
 
       if (!result.success) {
-        setStartupError(result.error || "Unknown error during startup");
+        setStartupError(result.error || 'Unknown error during startup');
         return;
       }
 
       if (result.needsUpdate) {
         setUpdateNotification(
-          "Claude Code installation updated; reapplying changes..."
+          'Claude Code installation updated; reapplying changes...'
         );
-        const updateResult = handleVersionUpdate(true);
+        const updateResult = handleVersionUpdate();
         if (updateResult.success && updateResult.cliPath) {
           setCliPath(updateResult.cliPath);
-          setUpdateNotification("Claude Code updated successfully!");
+          setUpdateNotification('Claude Code updated successfully!');
           setTimeout(() => setUpdateNotification(null), 3000);
         } else {
-          setUpdateNotification("Update failed. Please try again.");
+          setUpdateNotification('Update failed. Please try again.');
           setTimeout(() => setUpdateNotification(null), 5000);
         }
       } else {
@@ -76,7 +75,7 @@ export default function App() {
 
       // Load all config data in a single operation
       const configData = getAllConfigData();
-      
+
       // Initialize changesApplied state
       setChangesAppliedState(configData.changesApplied);
 
@@ -85,11 +84,17 @@ export default function App() {
         setCurrentThemes(configData.themes);
       }
 
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
-        ...(configData.launchText && { launchTextConfig: configData.launchText }),
-        ...(configData.thinkingVerbs && { thinkingVerbsConfig: configData.thinkingVerbs }),
-        ...(configData.thinkingStyle && { thinkingStyleConfig: configData.thinkingStyle }),
+        ...(configData.launchText && {
+          launchTextConfig: configData.launchText,
+        }),
+        ...(configData.thinkingVerbs && {
+          thinkingVerbsConfig: configData.thinkingVerbs,
+        }),
+        ...(configData.thinkingStyle && {
+          thinkingStyleConfig: configData.thinkingStyle,
+        }),
       }));
     };
 
@@ -97,13 +102,13 @@ export default function App() {
   }, []);
 
   useInput((input, key) => {
-    if (key.ctrl && input === "c") {
+    if (key.ctrl && input === 'c') {
       process.exit(0);
     }
     if (
-      (input === "q" || key.escape) &&
+      (input === 'q' || key.escape) &&
       !state.editingColor &&
-      state.currentView === "main"
+      state.currentView === 'main'
     ) {
       process.exit(0);
     }
@@ -117,7 +122,7 @@ export default function App() {
   const handleRestoreOriginalClaude = async () => {
     try {
       if (!cliPath) {
-        setUpdateNotification("No CLI path found.");
+        setUpdateNotification('No CLI path found.');
         setTimeout(() => setUpdateNotification(null), 5000);
         return;
       }
@@ -125,28 +130,28 @@ export default function App() {
       const success = restoreFromBackup(cliPath);
       if (success) {
         setChangesAppliedState(false);
-        setUpdateNotification("Original Claude Code restored successfully!");
+        setUpdateNotification('Original Claude Code restored successfully!');
         setTimeout(() => setUpdateNotification(null), 3000);
       } else {
         setUpdateNotification(
-          "Failed to restore - no backup found or restore error."
+          'Failed to restore - no backup found or restore error.'
         );
         setTimeout(() => setUpdateNotification(null), 5000);
       }
-    } catch (error) {
-      setUpdateNotification("Error restoring original Claude Code.");
+    } catch {
+      setUpdateNotification('Error restoring original Claude Code.');
       setTimeout(() => setUpdateNotification(null), 5000);
     }
   };
 
   const handleOpenTweakccConfig = () => {
     try {
-      const configPath = join(homedir(), ".tweakcc", "config.json");
+      const configPath = join(homedir(), '.tweakcc', 'config.json');
 
       // Check if config file exists
       if (!existsSync(configPath)) {
         setUpdateNotification(
-          "Config file not found. Creating default config..."
+          'Config file not found. Creating default config...'
         );
         // Create directory if it doesn't exist
         const configDir = dirname(configPath);
@@ -157,32 +162,32 @@ export default function App() {
         writeFileSync(configPath, JSON.stringify({}, null, 2));
       }
 
-      if (process.platform === "win32") {
-        spawn("explorer", ["/select,", configPath], {
+      if (process.platform === 'win32') {
+        spawn('explorer', ['/select,', configPath], {
           detached: true,
-          stdio: "ignore",
+          stdio: 'ignore',
         }).unref();
-      } else if (process.platform === "darwin") {
-        spawn("open", ["-R", configPath], {
+      } else if (process.platform === 'darwin') {
+        spawn('open', ['-R', configPath], {
           detached: true,
-          stdio: "ignore",
+          stdio: 'ignore',
         }).unref();
       } else {
         const configDir = dirname(configPath);
-        spawn("xdg-open", [configDir], {
+        spawn('xdg-open', [configDir], {
           detached: true,
-          stdio: "ignore",
+          stdio: 'ignore',
         }).unref();
       }
 
       setUpdateNotification(
-        "Opening file browser with tweakcc.json selected..."
+        'Opening file browser with tweakcc.json selected...'
       );
       setTimeout(() => setUpdateNotification(null), 2000);
     } catch (error) {
       setUpdateNotification(
         `Failed to open tweakcc.json: ${
-          error instanceof Error ? error.message : "Unknown error"
+          error instanceof Error ? error.message : 'Unknown error'
         }`
       );
       setTimeout(() => setUpdateNotification(null), 3000);
@@ -191,17 +196,17 @@ export default function App() {
 
   const handleApplyChanges = () => {
     if (!cliPath) {
-      setUpdateNotification("No CLI path found. Cannot apply changes.");
+      setUpdateNotification('No CLI path found. Cannot apply changes.');
       setTimeout(() => setUpdateNotification(null), 3000);
       return;
     }
-    
+
     const result = applyAllChanges(cliPath);
-    
+
     if (result.success && result.changesMade) {
       setChangesAppliedState(true);
     }
-    
+
     setUpdateNotification(result.message);
     setTimeout(() => setUpdateNotification(null), 3000);
   };
@@ -211,7 +216,7 @@ export default function App() {
       // Always find the original Claude Code installation
       const paths = findClijs();
       if (!paths) {
-        setUpdateNotification("Claude Code installation not found.");
+        setUpdateNotification('Claude Code installation not found.');
         setTimeout(() => setUpdateNotification(null), 3000);
         return;
       }
@@ -219,35 +224,35 @@ export default function App() {
 
       // Verify the file exists
       if (!existsSync(cliPathToOpen)) {
-        setUpdateNotification("CLI file not found at expected location.");
+        setUpdateNotification('CLI file not found at expected location.');
         setTimeout(() => setUpdateNotification(null), 3000);
         return;
       }
 
-      if (process.platform === "win32") {
-        spawn("explorer", ["/select,", cliPathToOpen], {
+      if (process.platform === 'win32') {
+        spawn('explorer', ['/select,', cliPathToOpen], {
           detached: true,
-          stdio: "ignore",
+          stdio: 'ignore',
         }).unref();
-      } else if (process.platform === "darwin") {
-        spawn("open", ["-R", cliPathToOpen], {
+      } else if (process.platform === 'darwin') {
+        spawn('open', ['-R', cliPathToOpen], {
           detached: true,
-          stdio: "ignore",
+          stdio: 'ignore',
         }).unref();
       } else {
         const cliDir = dirname(cliPathToOpen);
-        spawn("xdg-open", [cliDir], {
+        spawn('xdg-open', [cliDir], {
           detached: true,
-          stdio: "ignore",
+          stdio: 'ignore',
         }).unref();
       }
 
-      setUpdateNotification("Opening file browser with cli.js selected...");
+      setUpdateNotification('Opening file browser with cli.js selected...');
       setTimeout(() => setUpdateNotification(null), 2000);
     } catch (error) {
       setUpdateNotification(
         `Failed to open cli.js: ${
-          error instanceof Error ? error.message : "Unknown error"
+          error instanceof Error ? error.message : 'Unknown error'
         }`
       );
       setTimeout(() => setUpdateNotification(null), 3000);
@@ -255,22 +260,22 @@ export default function App() {
   };
 
   const handleMainSelect = (index: number) => {
-    setState((prev) => ({ ...prev, selectedMainIndex: index }));
+    setState(prev => ({ ...prev, selectedMainIndex: index }));
   };
 
   const handleMainSubmit = (item: MainMenuItem) => {
     switch (item) {
       case MainMenuItem.THEMES:
-        setState((prev) => ({ ...prev, currentView: "themes" }));
+        setState(prev => ({ ...prev, currentView: 'themes' }));
         break;
       case MainMenuItem.LAUNCH_TEXT:
-        setState((prev) => ({ ...prev, currentView: "launchText" }));
+        setState(prev => ({ ...prev, currentView: 'launchText' }));
         break;
       case MainMenuItem.THINKING_VERBS:
-        setState((prev) => ({ ...prev, currentView: "thinkingVerbs" }));
+        setState(prev => ({ ...prev, currentView: 'thinkingVerbs' }));
         break;
       case MainMenuItem.THINKING_STYLE:
-        setState((prev) => ({ ...prev, currentView: "thinkingStyle" }));
+        setState(prev => ({ ...prev, currentView: 'thinkingStyle' }));
         break;
       case MainMenuItem.APPLY_CHANGES:
         handleApplyChanges();
@@ -291,52 +296,51 @@ export default function App() {
   };
 
   const handleThemeSelect = (index: number) => {
-    setState((prev) => ({ ...prev, selectedThemeIndex: index }));
+    setState(prev => ({ ...prev, selectedThemeIndex: index }));
   };
 
   const handleThemeSubmit = (item: string) => {
     // Extract theme ID from the item string (e.g., "Dark mode (dark)" -> "dark")
     const match = item.match(/\(([^)]+)\)$/);
-    const themeId = match ? match[1] : "dark";
-    const theme =
-      currentThemes.find((t) => t.id === themeId) || currentThemes[0];
+    const themeId = match ? match[1] : 'dark';
+    const theme = currentThemes.find(t => t.id === themeId) || currentThemes[0];
 
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
-      currentView: "themeEdit",
+      currentView: 'themeEdit',
       editingTheme: theme,
     }));
   };
 
   const handleBack = () => {
-    if (state.currentView === "themeEdit") {
-      setState((prev) => ({
+    if (state.currentView === 'themeEdit') {
+      setState(prev => ({
         ...prev,
-        currentView: "themes",
+        currentView: 'themes',
         editingTheme: undefined,
       }));
-    } else if (state.currentView === "launchText") {
-      setState((prev) => ({ ...prev, currentView: "main" }));
-    } else if (state.currentView === "thinkingVerbs") {
-      setState((prev) => ({ ...prev, currentView: "main" }));
-    } else if (state.currentView === "thinkingStyle") {
-      setState((prev) => ({ ...prev, currentView: "main" }));
+    } else if (state.currentView === 'launchText') {
+      setState(prev => ({ ...prev, currentView: 'main' }));
+    } else if (state.currentView === 'thinkingVerbs') {
+      setState(prev => ({ ...prev, currentView: 'main' }));
+    } else if (state.currentView === 'thinkingStyle') {
+      setState(prev => ({ ...prev, currentView: 'main' }));
     } else {
-      setState((prev) => ({ ...prev, currentView: "main" }));
+      setState(prev => ({ ...prev, currentView: 'main' }));
     }
   };
 
   const handleThemeSave = (updatedTheme: Theme) => {
     // Update the theme in the themes array
-    setCurrentThemes((prev) =>
-      prev.map((theme) => (theme.id === updatedTheme.id ? updatedTheme : theme))
+    setCurrentThemes(prev =>
+      prev.map(theme => (theme.id === updatedTheme.id ? updatedTheme : theme))
     );
 
     // Update the editing theme in state so the preview updates immediately
-    setState((prev) => ({ ...prev, editingTheme: updatedTheme }));
+    setState(prev => ({ ...prev, editingTheme: updatedTheme }));
 
     // Save to config
-    const updatedThemes = currentThemes.map((theme) =>
+    const updatedThemes = currentThemes.map(theme =>
       theme.id === updatedTheme.id ? updatedTheme : theme
     );
     saveThemesToConfig(updatedThemes);
@@ -346,15 +350,15 @@ export default function App() {
   };
 
   const handleColorEditStart = () => {
-    setState((prev) => ({ ...prev, editingColor: true }));
+    setState(prev => ({ ...prev, editingColor: true }));
   };
 
   const handleColorEditEnd = () => {
-    setState((prev) => ({ ...prev, editingColor: false }));
+    setState(prev => ({ ...prev, editingColor: false }));
   };
 
   const handleLaunchTextSave = (config: LaunchTextConfig) => {
-    setState((prev) => ({ ...prev, launchTextConfig: config }));
+    setState(prev => ({ ...prev, launchTextConfig: config }));
 
     // Save to config
     saveLaunchTextToConfig(config);
@@ -364,7 +368,7 @@ export default function App() {
   };
 
   const handleThinkingVerbsSave = (config: ThinkingVerbsConfig) => {
-    setState((prev) => ({ ...prev, thinkingVerbsConfig: config }));
+    setState(prev => ({ ...prev, thinkingVerbsConfig: config }));
 
     // Save to config
     saveThinkingVerbsToConfig(config);
@@ -374,7 +378,7 @@ export default function App() {
   };
 
   const handleThinkingStyleSave = (config: ThinkingStyleConfig) => {
-    setState((prev) => ({ ...prev, thinkingStyleConfig: config }));
+    setState(prev => ({ ...prev, thinkingStyleConfig: config }));
 
     // Save to config
     saveThinkingStyleToConfig(config);
@@ -388,7 +392,7 @@ export default function App() {
     const baseTheme = currentThemes[0] || themes[0]; // Fallback to built-in dark theme
     const newTheme: Theme = {
       ...baseTheme,
-      name: "New Custom Theme",
+      name: 'New Custom Theme',
       id: `custom-${Date.now()}`, // Generate unique ID
     };
 
@@ -397,21 +401,21 @@ export default function App() {
     saveThemesToConfig(updatedThemes);
 
     // Navigate to edit the new theme immediately
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
-      currentView: "themeEdit",
+      currentView: 'themeEdit',
       editingTheme: newTheme,
       selectedThemeIndex: currentThemes.length, // Will be the index of the new theme
     }));
   };
 
   const handleDeleteTheme = (themeId: string) => {
-    const updatedThemes = currentThemes.filter((theme) => theme.id !== themeId);
+    const updatedThemes = currentThemes.filter(theme => theme.id !== themeId);
     setCurrentThemes(updatedThemes);
     saveThemesToConfig(updatedThemes);
 
     // Reset selection if needed
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       selectedThemeIndex: Math.min(
         prev.selectedThemeIndex,
@@ -439,14 +443,14 @@ export default function App() {
           <Text color="cyan">{updateNotification}</Text>
         </Box>
       )}
-      {state.currentView === "main" ? (
+      {state.currentView === 'main' ? (
         <MainView
           selectedIndex={state.selectedMainIndex}
           onSelect={handleMainSelect}
           onSubmit={handleMainSubmit}
           changesApplied={changesApplied}
         />
-      ) : state.currentView === "themes" ? (
+      ) : state.currentView === 'themes' ? (
         <ThemesView
           selectedIndex={state.selectedThemeIndex}
           onSelect={handleThemeSelect}
@@ -456,19 +460,19 @@ export default function App() {
           onCreateTheme={handleCreateTheme}
           onDeleteTheme={handleDeleteTheme}
         />
-      ) : state.currentView === "launchText" ? (
+      ) : state.currentView === 'launchText' ? (
         <LaunchTextView
           onBack={handleBack}
           onSave={handleLaunchTextSave}
           initialConfig={state.launchTextConfig}
         />
-      ) : state.currentView === "thinkingVerbs" ? (
+      ) : state.currentView === 'thinkingVerbs' ? (
         <ThinkingVerbsView
           onBack={handleBack}
           onSave={handleThinkingVerbsSave}
           initialConfig={state.thinkingVerbsConfig}
         />
-      ) : state.currentView === "thinkingStyle" ? (
+      ) : state.currentView === 'thinkingStyle' ? (
         <ThinkingStyleView
           onBack={handleBack}
           onSave={handleThinkingStyleSave}

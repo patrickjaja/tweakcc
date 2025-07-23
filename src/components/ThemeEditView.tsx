@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { Box, Text, useInput } from "ink";
-import { ThemePreview } from "./ThemePreview.js";
-import { ColoredColorName } from "./ColoredColorName.js";
-import { ColorPicker } from "./ColorPicker.js";
-import { Theme } from "../types.js";
+import { useState } from 'react';
+import { Box, Text, useInput } from 'ink';
+import { ThemePreview } from './ThemePreview.js';
+import { ColoredColorName } from './ColoredColorName.js';
+import { ColorPicker } from './ColorPicker.js';
+import { Theme } from '../types.js';
 
 interface ThemeEditViewProps {
   theme: Theme;
@@ -13,7 +13,7 @@ interface ThemeEditViewProps {
   onColorEditEnd?: () => void;
 }
 
-type ColorFormat = "rgb" | "hex" | "hsl";
+type ColorFormat = 'rgb' | 'hex' | 'hsl';
 
 export function ThemeEditView({
   theme,
@@ -22,16 +22,16 @@ export function ThemeEditView({
   onColorEditStart,
   onColorEditEnd,
 }: ThemeEditViewProps) {
-  const [colorFormat, setColorFormat] = useState<ColorFormat>("rgb");
+  const [colorFormat, setColorFormat] = useState<ColorFormat>('rgb');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [editingColorIndex, setEditingColorIndex] = useState<number | null>(
     null
   );
-  const [editingNameId, setEditingNameId] = useState<"name" | "id" | null>(
+  const [editingNameId, setEditingNameId] = useState<'name' | 'id' | null>(
     null
   );
-  const [editingValue, setEditingValue] = useState("");
-  const [originalValue, setOriginalValue] = useState("");
+  const [editingValue, setEditingValue] = useState('');
+  const [originalValue, setOriginalValue] = useState('');
   const [currentTheme, setCurrentTheme] = useState(theme);
 
   useInput((input, key) => {
@@ -39,25 +39,25 @@ export function ThemeEditView({
       // Handle navigation when not editing
       if (key.escape) {
         onBack();
-      } else if (key.ctrl && input === "a") {
-        setColorFormat((prev) => {
-          if (prev === "rgb") return "hex";
-          if (prev === "hex") return "hsl";
-          return "rgb";
+      } else if (key.ctrl && input === 'a') {
+        setColorFormat(prev => {
+          if (prev === 'rgb') return 'hex';
+          if (prev === 'hex') return 'hsl';
+          return 'rgb';
         });
       } else if (key.upArrow) {
-        setSelectedIndex((prev) => Math.max(0, prev - 1));
+        setSelectedIndex(prev => Math.max(0, prev - 1));
       } else if (key.downArrow) {
-        setSelectedIndex((prev) => Math.min(colorKeys.length + 1, prev + 1));
+        setSelectedIndex(prev => Math.min(colorKeys.length + 1, prev + 1));
       } else if (key.return) {
         if (selectedIndex === 0) {
           // Edit theme name
-          setEditingNameId("name");
+          setEditingNameId('name');
           setEditingValue(currentTheme.name);
           setOriginalValue(currentTheme.name);
         } else if (selectedIndex === 1) {
           // Edit theme id
-          setEditingNameId("id");
+          setEditingNameId('id');
           setEditingValue(currentTheme.id);
           setOriginalValue(currentTheme.id);
         } else {
@@ -73,11 +73,11 @@ export function ThemeEditView({
       }
     } else if (editingColorIndex !== null) {
       // Handle Ctrl+A when editing color (ColorPicker handles other keys)
-      if (key.ctrl && input === "a") {
-        setColorFormat((prev) => {
-          if (prev === "rgb") return "hex";
-          if (prev === "hex") return "hsl";
-          return "rgb";
+      if (key.ctrl && input === 'a') {
+        setColorFormat(prev => {
+          if (prev === 'rgb') return 'hex';
+          if (prev === 'hex') return 'hsl';
+          return 'rgb';
         });
       }
     } else if (editingNameId !== null) {
@@ -90,16 +90,16 @@ export function ThemeEditView({
         setCurrentTheme(updatedTheme);
         onSave(updatedTheme);
         setEditingNameId(null);
-        setEditingValue("");
-        setOriginalValue("");
+        setEditingValue('');
+        setOriginalValue('');
       } else if (key.escape) {
         setEditingNameId(null);
-        setEditingValue("");
-        setOriginalValue("");
+        setEditingValue('');
+        setOriginalValue('');
       } else if (key.backspace || key.delete) {
-        setEditingValue((prev) => prev.slice(0, -1));
+        setEditingValue(prev => prev.slice(0, -1));
       } else if (input) {
-        setEditingValue((prev) => prev + input);
+        setEditingValue(prev => prev + input);
       }
     }
   });
@@ -118,11 +118,12 @@ export function ThemeEditView({
     const b = parseInt(rgbMatch[3]);
 
     switch (format) {
-      case "hex":
-        const toHex = (n: number) => n.toString(16).padStart(2, "0");
+      case 'hex': {
+        const toHex = (n: number) => n.toString(16).padStart(2, '0');
         return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+      }
 
-      case "hsl":
+      case 'hsl': {
         // Convert RGB to HSL
         const rNorm = r / 255;
         const gNorm = g / 255;
@@ -156,8 +157,9 @@ export function ThemeEditView({
         return `hsl(${Math.round(h * 360)}, ${Math.round(
           s * 100
         )}%, ${Math.round(l * 100)}%)`;
+      }
 
-      case "rgb":
+      case 'rgb':
       default:
         return color; // Already in RGB format
     }
@@ -166,46 +168,47 @@ export function ThemeEditView({
   const getColorDescription = (key: keyof typeof theme.colors): string => {
     const descriptions: Record<keyof typeof theme.colors, string> = {
       claude:
-        "Claude branding color.  Used for the Claude logo, the welcome message, and the thinking text.",
-      text: "Code color.  Used in diffs.",
+        'Claude branding color.  Used for the Claude logo, the welcome message, and the thinking text.',
+      text: 'Code color.  Used in diffs.',
       inverseText:
-        "Inverse text color.  Used for the text of tabs, where the background is filled in.",
+        'Inverse text color.  Used for the text of tabs, where the background is filled in.',
       secondaryText:
-        "Secondary/dimmed text.  Used for keyboard shortcuts and other help text.",
-      secondaryBorder: "Secondary border color.  Used for various boxes.",
+        'Secondary/dimmed text.  Used for keyboard shortcuts and other help text.',
+      secondaryBorder: 'Secondary border color.  Used for various boxes.',
       suggestion:
-        "Suggestion text color.  Used for suggestions for theme names and various other things.",
+        'Suggestion text color.  Used for suggestions for theme names and various other things.',
       remember:
-        "Remember/note color.  Used for various text relating to memories.",
+        'Remember/note color.  Used for various text relating to memories.',
       success:
-        "Success indicator.  Used for the bullet on successful tool calls, and various success messages (such as sign in successful).",
-      error: "Error indicator",
-      warning: "Warning indicator",
-      autoAccept: "Auto-accept mode indicator",
-      bashBorder: "Bash command border",
-      permission: "Permission prompt color",
-      planMode: "Plan mode indicator",
-      diffAdded: "Added diff background",
-      diffRemoved: "Removed diff background",
-      diffAddedDimmed: "Added diff background (dimmed)",
-      diffRemovedDimmed: "Removed diff background (dimmed)",
-      diffAddedWord: "Added word highlight",
-      diffRemovedWord: "Removed word highlight",
-      diffAddedWordDimmed: "Added word highlight (dimmed)",
-      diffRemovedWordDimmed: "Removed word highlight (dimmed)",
+        'Success indicator.  Used for the bullet on successful tool calls, and various success messages (such as sign in successful).',
+      error: 'Error indicator',
+      warning: 'Warning indicator',
+      autoAccept: 'Auto-accept mode indicator',
+      bashBorder: 'Bash command border',
+      permission: 'Permission prompt color',
+      planMode: 'Plan mode indicator',
+      diffAdded: 'Added diff background',
+      diffRemoved: 'Removed diff background',
+      diffAddedDimmed: 'Added diff background (dimmed)',
+      diffRemovedDimmed: 'Removed diff background (dimmed)',
+      diffAddedWord: 'Added word highlight',
+      diffRemovedWord: 'Removed word highlight',
+      diffAddedWordDimmed: 'Added word highlight (dimmed)',
+      diffRemovedWordDimmed: 'Removed word highlight (dimmed)',
     };
-    return descriptions[key] || "";
+    return descriptions[key] || '';
   };
 
-  const maxKeyLength = Math.max(...colorKeys.map((key) => key.length));
+  const maxKeyLength = Math.max(...colorKeys.map(key => key.length));
 
   return (
     <Box>
       <Box flexDirection="column" width="50%">
         <Box>
           <Text backgroundColor="#ffd500" color="black" bold>
-            {" "}
-            Editing theme "{currentTheme.name}" ({currentTheme.id}){" "}
+            {' '}
+            Editing theme &ldquo;{currentTheme.name}&rdquo; ({currentTheme.id}
+            ){' '}
           </Text>
         </Box>
 
@@ -229,12 +232,12 @@ export function ThemeEditView({
                 paddingLeft={1}
               >
                 <Text bold>
-                  {selectedIndex === 0 ? "Theme Name" : "Theme ID"}
+                  {selectedIndex === 0 ? 'Theme Name' : 'Theme ID'}
                 </Text>
                 <Text>
                   {selectedIndex === 0
-                    ? "The display name for this theme"
-                    : "Unique identifier for this theme; used in `.claude.json` to select the theme."}
+                    ? 'The display name for this theme'
+                    : 'Unique identifier for this theme; used in `.claude.json` to select the theme.'}
                 </Text>
               </Box>
             ) : (
@@ -259,15 +262,15 @@ export function ThemeEditView({
 
             <Box flexDirection="column">
               <Box>
-                <Text color={selectedIndex === 0 ? "yellow" : "white"}>
-                  {selectedIndex === 0 ? "❯ " : "  "}
+                <Text color={selectedIndex === 0 ? 'yellow' : 'white'}>
+                  {selectedIndex === 0 ? '❯ ' : '  '}
                 </Text>
                 <Text bold>Name: </Text>
                 <Text>{currentTheme.name}</Text>
               </Box>
               <Box marginBottom={1}>
-                <Text color={selectedIndex === 1 ? "yellow" : "white"}>
-                  {selectedIndex === 1 ? "❯ " : "  "}
+                <Text color={selectedIndex === 1 ? 'yellow' : 'white'}>
+                  {selectedIndex === 1 ? '❯ ' : '  '}
                 </Text>
                 <Text bold>ID: </Text>
                 <Text>{currentTheme.id}</Text>
@@ -279,10 +282,10 @@ export function ThemeEditView({
                   <Box key={key}>
                     <Text
                       color={
-                        selectedIndex === adjustedIndex ? "yellow" : "white"
+                        selectedIndex === adjustedIndex ? 'yellow' : 'white'
                       }
                     >
-                      {selectedIndex === adjustedIndex ? "❯ " : "  "}
+                      {selectedIndex === adjustedIndex ? '❯ ' : '  '}
                     </Text>
                     <Box width={maxKeyLength + 2}>
                       <Text>
@@ -305,7 +308,7 @@ export function ThemeEditView({
         ) : editingNameId ? (
           <Box flexDirection="column" marginTop={1}>
             <Text>
-              Editing {editingNameId === "name" ? "theme name" : "theme ID"}:
+              Editing {editingNameId === 'name' ? 'theme name' : 'theme ID'}:
             </Text>
             <Box borderStyle="round" borderColor="yellow" paddingX={1}>
               <Text>{editingValue}</Text>
@@ -317,7 +320,7 @@ export function ThemeEditView({
             initialValue={originalValue}
             colorKey={colorKeys[editingColorIndex!]}
             theme={currentTheme}
-            onColorChange={(color) => {
+            onColorChange={color => {
               setEditingValue(color);
               // Update the theme live for preview and auto-save
               const colorKey = colorKeys[editingColorIndex!];
@@ -330,21 +333,21 @@ export function ThemeEditView({
               };
               setCurrentTheme(updatedTheme);
               // Auto-save every change
-              onSave(updatedTheme);  
+              onSave(updatedTheme);
             }}
             onExit={() => {
               // Exit color picker, keeping auto-saved changes
               setEditingColorIndex(null);
-              setEditingValue("");
-              setOriginalValue("");
+              setEditingValue('');
+              setOriginalValue('');
               onColorEditEnd?.();
             }}
             onCancel={() => {
               // Restore original theme and exit
               setCurrentTheme(theme);
               setEditingColorIndex(null);
-              setEditingValue("");
-              setOriginalValue("");
+              setEditingValue('');
+              setOriginalValue('');
               onColorEditEnd?.();
             }}
           />

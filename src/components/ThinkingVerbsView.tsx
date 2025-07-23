@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Box, Text, useInput, useStdout } from "ink";
-import { ThinkingVerbsConfig } from "../types.js";
-import { getCurrentClaudeTheme } from "../utils/claudeTheme.js";
-import { themes } from "../themes.js";
+import { useState } from 'react';
+import { Box, Text, useInput } from 'ink';
+import { ThinkingVerbsConfig } from '../types.js';
+import { getCurrentClaudeTheme } from '../utils/claudeTheme.js';
+import { themes } from '../themes.js';
 
 interface ThinkingVerbsViewProps {
   onBack: () => void;
@@ -11,13 +11,13 @@ interface ThinkingVerbsViewProps {
 }
 
 const DEFAULT_VERBS = [
-  "Pondering",
-  "Investigating",
-  "Inquiring",
-  "Thinking",
-  "Reflecting",
-  "Contemplating",
-  "Meditating",
+  'Pondering',
+  'Investigating',
+  'Inquiring',
+  'Thinking',
+  'Reflecting',
+  'Contemplating',
+  'Meditating',
 ];
 
 export function ThinkingVerbsView({
@@ -25,34 +25,31 @@ export function ThinkingVerbsView({
   onSave,
   initialConfig,
 }: ThinkingVerbsViewProps) {
-  const { stdout } = useStdout();
-  const terminalWidth = stdout?.columns || 120;
-
   const [config, setConfig] = useState<ThinkingVerbsConfig>(
     initialConfig || {
       useHaikuGenerated: true,
-      punctuation: "…",
+      punctuation: '…',
       verbs: [...DEFAULT_VERBS],
     }
   );
 
   const options = config.useHaikuGenerated
-    ? (["useHaikuGenerated"] as const)
-    : (["useHaikuGenerated", "punctuation", "verbs"] as const);
+    ? (['useHaikuGenerated'] as const)
+    : (['useHaikuGenerated', 'punctuation', 'verbs'] as const);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(0);
   const selectedOption = options[selectedOptionIndex];
   const [selectedVerbIndex, setSelectedVerbIndex] = useState(0);
   const [editingVerb, setEditingVerb] = useState(false);
-  const [verbInput, setVerbInput] = useState("");
+  const [verbInput, setVerbInput] = useState('');
   const [addingNewVerb, setAddingNewVerb] = useState(false);
   const [editingPunctuation, setEditingPunctuation] = useState(false);
   const [punctuationInput, setPunctuationInput] = useState(config.punctuation);
   // Get current Claude theme and color
   const currentThemeId = getCurrentClaudeTheme();
   const currentTheme =
-    themes.find((t) => t.id === currentThemeId) ||
-    themes.find((t) => t.id === "dark");
-  const claudeColor = currentTheme?.colors.claude || "rgb(215,119,87)";
+    themes.find(t => t.id === currentThemeId) ||
+    themes.find(t => t.id === 'dark');
+  const claudeColor = currentTheme?.colors.claude || 'rgb(215,119,87)';
 
   useInput((input, key) => {
     if (editingPunctuation) {
@@ -65,9 +62,9 @@ export function ThinkingVerbsView({
         setPunctuationInput(config.punctuation);
         setEditingPunctuation(false);
       } else if (key.backspace || key.delete) {
-        setPunctuationInput((prev) => prev.slice(0, -1));
+        setPunctuationInput(prev => prev.slice(0, -1));
       } else if (input) {
-        setPunctuationInput((prev) => prev + input);
+        setPunctuationInput(prev => prev + input);
       }
       return;
     }
@@ -96,15 +93,15 @@ export function ThinkingVerbsView({
             setEditingVerb(false);
           }
         }
-        setVerbInput("");
+        setVerbInput('');
       } else if (key.escape) {
-        setVerbInput("");
+        setVerbInput('');
         setEditingVerb(false);
         setAddingNewVerb(false);
       } else if (key.backspace || key.delete) {
-        setVerbInput((prev) => prev.slice(0, -1));
+        setVerbInput(prev => prev.slice(0, -1));
       } else if (input) {
-        setVerbInput((prev) => prev + input);
+        setVerbInput(prev => prev + input);
       }
       return;
     }
@@ -112,44 +109,44 @@ export function ThinkingVerbsView({
     if (key.escape) {
       onBack();
     } else if (key.return) {
-      if (selectedOption === "punctuation") {
+      if (selectedOption === 'punctuation') {
         setPunctuationInput(config.punctuation);
         setEditingPunctuation(true);
       }
     } else if (key.tab) {
       if (key.shift) {
         // Shift+Tab: go backwards
-        setSelectedOptionIndex((prev) =>
+        setSelectedOptionIndex(prev =>
           prev === 0 ? options.length - 1 : prev - 1
         );
       } else {
         // Tab: go forwards
-        setSelectedOptionIndex((prev) =>
+        setSelectedOptionIndex(prev =>
           prev === options.length - 1 ? 0 : prev + 1
         );
       }
     } else if (key.upArrow) {
       if (
-        selectedOption === "verbs" &&
+        selectedOption === 'verbs' &&
         !config.useHaikuGenerated &&
         config.verbs.length > 0
       ) {
-        setSelectedVerbIndex((prev) =>
+        setSelectedVerbIndex(prev =>
           prev > 0 ? prev - 1 : config.verbs.length - 1
         );
       }
     } else if (key.downArrow) {
       if (
-        selectedOption === "verbs" &&
+        selectedOption === 'verbs' &&
         !config.useHaikuGenerated &&
         config.verbs.length > 0
       ) {
-        setSelectedVerbIndex((prev) =>
+        setSelectedVerbIndex(prev =>
           prev < config.verbs.length - 1 ? prev + 1 : 0
         );
       }
-    } else if (input === " ") {
-      if (selectedOption === "useHaikuGenerated") {
+    } else if (input === ' ') {
+      if (selectedOption === 'useHaikuGenerated') {
         const newConfig = {
           ...config,
           useHaikuGenerated: !config.useHaikuGenerated,
@@ -159,8 +156,8 @@ export function ThinkingVerbsView({
         setSelectedOptionIndex(0); // Reset to first option when toggling
       }
     } else if (
-      input === "e" &&
-      selectedOption === "verbs" &&
+      input === 'e' &&
+      selectedOption === 'verbs' &&
       !config.useHaikuGenerated
     ) {
       // Edit verb
@@ -169,8 +166,8 @@ export function ThinkingVerbsView({
         setEditingVerb(true);
       }
     } else if (
-      input === "d" &&
-      selectedOption === "verbs" &&
+      input === 'd' &&
+      selectedOption === 'verbs' &&
       !config.useHaikuGenerated
     ) {
       // Delete verb
@@ -186,17 +183,17 @@ export function ThinkingVerbsView({
         }
       }
     } else if (
-      input === "n" &&
-      selectedOption === "verbs" &&
+      input === 'n' &&
+      selectedOption === 'verbs' &&
       !config.useHaikuGenerated
     ) {
       // Add new verb
       setAddingNewVerb(true);
-      setVerbInput("");
+      setVerbInput('');
     } else if (
       key.ctrl &&
-      input === "r" &&
-      selectedOption === "verbs" &&
+      input === 'r' &&
+      selectedOption === 'verbs' &&
       !config.useHaikuGenerated
     ) {
       // Reset to default
@@ -207,23 +204,25 @@ export function ThinkingVerbsView({
     }
   });
 
-  const checkboxChar = config.useHaikuGenerated ? "x" : " ";
+  const checkboxChar = config.useHaikuGenerated ? 'x' : ' ';
   const previewWidth = config.useHaikuGenerated ? 0 : 50;
 
   return (
     <Box>
       <Box
         flexDirection="column"
-        width={config.useHaikuGenerated ? "100%" : `${100 - previewWidth}%`}
+        width={config.useHaikuGenerated ? '100%' : `${100 - previewWidth}%`}
       >
         <Box marginBottom={1} flexDirection="column">
           <Text bold backgroundColor="#ffd500" color="black">
-            {" "}
-            Thinking verbs{" "}
+            {' '}
+            Thinking verbs{' '}
           </Text>
           <Box>
             <Text dimColor>
-              {selectedOption === "punctuation" ? "enter to edit punctuation" : "changes auto-saved"}
+              {selectedOption === 'punctuation'
+                ? 'enter to edit punctuation'
+                : 'changes auto-saved'}
             </Text>
           </Box>
           <Box>
@@ -235,15 +234,15 @@ export function ThinkingVerbsView({
           <Text>
             <Text
               color={
-                selectedOption === "useHaikuGenerated" ? "yellow" : undefined
+                selectedOption === 'useHaikuGenerated' ? 'yellow' : undefined
               }
             >
-              {selectedOption === "useHaikuGenerated" ? "❯ " : "  "}
+              {selectedOption === 'useHaikuGenerated' ? '❯ ' : '  '}
             </Text>
             <Text
               bold
               color={
-                selectedOption === "useHaikuGenerated" ? "yellow" : undefined
+                selectedOption === 'useHaikuGenerated' ? 'yellow' : undefined
               }
             >
               Use Haiku-generated verbs
@@ -251,13 +250,13 @@ export function ThinkingVerbsView({
           </Text>
         </Box>
 
-        {selectedOption === "useHaikuGenerated" && (
-          <Text dimColor>{"  "}space to toggle</Text>
+        {selectedOption === 'useHaikuGenerated' && (
+          <Text dimColor>{'  '}space to toggle</Text>
         )}
 
         <Box marginLeft={2} marginBottom={1}>
           <Text>
-            [{checkboxChar}] {config.useHaikuGenerated ? "Enabled" : "Disabled"}
+            [{checkboxChar}] {config.useHaikuGenerated ? 'Enabled' : 'Disabled'}
           </Text>
         </Box>
 
@@ -280,32 +279,32 @@ export function ThinkingVerbsView({
               <Text>
                 <Text
                   color={
-                    selectedOption === "punctuation" ? "yellow" : undefined
+                    selectedOption === 'punctuation' ? 'yellow' : undefined
                   }
                 >
-                  {selectedOption === "punctuation" ? "❯ " : "  "}
+                  {selectedOption === 'punctuation' ? '❯ ' : '  '}
                 </Text>
                 <Text
                   bold
                   color={
-                    selectedOption === "punctuation" ? "yellow" : undefined
+                    selectedOption === 'punctuation' ? 'yellow' : undefined
                   }
                 >
                   Punctuation
                 </Text>
               </Text>
-              {selectedOption === "punctuation" &&
+              {selectedOption === 'punctuation' &&
                 (editingPunctuation ? (
-                  <Text dimColor>{"  "}enter to save</Text>
+                  <Text dimColor>{'  '}enter to save</Text>
                 ) : (
-                  <Text dimColor>{"  "}enter to edit</Text>
+                  <Text dimColor>{'  '}enter to edit</Text>
                 ))}
             </Box>
 
             <Box marginLeft={2} marginBottom={1}>
               <Box
                 borderStyle="round"
-                borderColor={editingPunctuation ? "yellow" : "gray"}
+                borderColor={editingPunctuation ? 'yellow' : 'gray'}
               >
                 <Text>
                   {editingPunctuation ? punctuationInput : config.punctuation}
@@ -315,22 +314,22 @@ export function ThinkingVerbsView({
 
             <Box>
               <Text>
-                <Text color={selectedOption === "verbs" ? "yellow" : undefined}>
-                  {selectedOption === "verbs" ? "❯ " : "  "}
+                <Text color={selectedOption === 'verbs' ? 'yellow' : undefined}>
+                  {selectedOption === 'verbs' ? '❯ ' : '  '}
                 </Text>
                 <Text
                   bold
-                  color={selectedOption === "verbs" ? "yellow" : undefined}
+                  color={selectedOption === 'verbs' ? 'yellow' : undefined}
                 >
                   Verbs
                 </Text>
               </Text>
             </Box>
 
-            {selectedOption === "verbs" && (
+            {selectedOption === 'verbs' && (
               <Box flexDirection="column">
                 <Text dimColor>
-                  {"  "}e to edit · d to delete · n to add new · ctrl+r to reset
+                  {'  '}e to edit · d to delete · n to add new · ctrl+r to reset
                 </Text>
               </Box>
             )}
@@ -358,7 +357,7 @@ export function ThinkingVerbsView({
                     <>
                       {adjustedStartIndex > 0 && (
                         <Text color="gray" dimColor>
-                          {" "}
+                          {' '}
                           ↑ {adjustedStartIndex} more above
                         </Text>
                       )}
@@ -368,23 +367,23 @@ export function ThinkingVerbsView({
                           <Text
                             key={actualIndex}
                             color={
-                              selectedOption === "verbs" &&
+                              selectedOption === 'verbs' &&
                               actualIndex === selectedVerbIndex
-                                ? "cyan"
+                                ? 'cyan'
                                 : undefined
                             }
                           >
-                            {selectedOption === "verbs" &&
+                            {selectedOption === 'verbs' &&
                             actualIndex === selectedVerbIndex
-                              ? "❯ "
-                              : "  "}
+                              ? '❯ '
+                              : '  '}
                             {verb}
                           </Text>
                         );
                       })}
                       {endIndex < config.verbs.length && (
                         <Text color="gray" dimColor>
-                          {" "}
+                          {' '}
                           ↓ {config.verbs.length - endIndex} more below
                         </Text>
                       )}
@@ -427,7 +426,7 @@ export function ThinkingVerbsView({
             <Text>
               <Text color={claudeColor}>
                 ✻ {config.verbs[selectedVerbIndex]}
-                {config.punctuation}{" "}
+                {config.punctuation}{' '}
               </Text>
               <Text color={currentTheme?.colors.secondaryText}>
                 (10s · ↑ 456 tokens · esc to interrupt)

@@ -1,11 +1,11 @@
-import React from "react";
-import { Box, Text, useInput } from "ink";
-import { SelectInput } from "./SelectInput.js";
-import { ThemePreview } from "./ThemePreview.js";
-import { Theme } from "../types.js";
+import React from 'react';
+import { Box, Text, useInput } from 'ink';
+import { SelectInput } from './SelectInput.js';
+import { ThemePreview } from './ThemePreview.js';
+import { Theme } from '../types.js';
 
 function generateThemeItems(themes: Theme[]): string[] {
-  return themes.map((theme) => `${theme.name} (${theme.id})`);
+  return themes.map(theme => `${theme.name} (${theme.id})`);
 }
 
 interface ThemesViewProps {
@@ -30,9 +30,9 @@ export function ThemesView({
   useInput((input, key) => {
     if (key.escape) {
       onBack();
-    } else if (input === "n") {
+    } else if (input === 'n') {
       onCreateTheme();
-    } else if (input === "d") {
+    } else if (input === 'd') {
       // Get the selected theme ID for deletion
       const selectedItem = generateThemeItems(themes)[selectedIndex];
       if (selectedItem) {
@@ -42,14 +42,14 @@ export function ThemesView({
           onDeleteTheme(themeId);
         }
       }
-    } else if (key.ctrl && input === "r") {
-      console.log("Resetting to default themes...");
+    } else if (key.ctrl && input === 'r') {
+      console.log('Resetting to default themes...');
     }
   });
 
   const themeItems = generateThemeItems(themes);
   const selectedTheme =
-    themes.find((t) => themeItems[selectedIndex]?.includes(`(${t.id})`)) ||
+    themes.find(t => themeItems[selectedIndex]?.includes(`(${t.id})`)) ||
     themes[0];
 
   // If no themes exist, show a message
@@ -58,8 +58,8 @@ export function ThemesView({
       <Box>
         <Box flexDirection="column" width="100%">
           <Text bold backgroundColor="#ffd500" color="black">
-            {" "}
-            Themes{" "}
+            {' '}
+            Themes{' '}
           </Text>
           <Box marginBottom={1} flexDirection="column">
             <Text dimColor>n to create a new theme</Text>
@@ -75,8 +75,8 @@ export function ThemesView({
     <Box>
       <Box flexDirection="column" width="50%">
         <Text bold backgroundColor="#ffd500" color="black">
-          {" "}
-          Themes{" "}
+          {' '}
+          Themes{' '}
         </Text>
         <Box marginBottom={1} flexDirection="column">
           <Text dimColor>n to create a new theme</Text>

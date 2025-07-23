@@ -1,6 +1,5 @@
-import React from "react";
-import { Box, Text } from "ink";
-import { Theme } from "../types.js";
+import { Box, Text } from 'ink';
+import { Theme } from '../types.js';
 
 interface ThemePreviewProps {
   theme: Theme;
@@ -16,50 +15,50 @@ export function ThemePreview({ theme }: ThemePreviewProps) {
         <Box flexDirection="column">
           <Text>╭───────────────────────────────────────╮</Text>
           <Text>
-            │ <Text color={theme.colors.secondaryText}>1</Text>{" "}
-            <Text color={theme.colors.text}>function greet() {"{"}</Text>
-            {"                "}│
+            │ <Text color={theme.colors.secondaryText}>1</Text>{' '}
+            <Text color={theme.colors.text}>function greet() {'{'}</Text>
+            {'                '}│
           </Text>
           <Text>
-            │ <Text color={theme.colors.secondaryText}>2</Text>{" "}
+            │ <Text color={theme.colors.secondaryText}>2</Text>{' '}
             <Text
               backgroundColor={theme.colors.diffRemoved}
               color={theme.colors.text}
             >
-              - console.log("
+              - console.log(&ldquo;
               <Text backgroundColor={theme.colors.diffRemovedWord}>
                 Hello, World!
               </Text>
-              ");
+              &rdquo;);
             </Text>
-            {"  "}│
+            {'  '}│
           </Text>
           <Text>
-            │ <Text color={theme.colors.secondaryText}>2</Text>{" "}
+            │ <Text color={theme.colors.secondaryText}>2</Text>{' '}
             <Text
               backgroundColor={theme.colors.diffAdded}
               color={theme.colors.text}
             >
-              + console.log("
+              + console.log(&ldquo;
               <Text backgroundColor={theme.colors.diffAddedWord}>
                 Hello, Claude!
               </Text>
-              ");
-            </Text>{" "}
+              &rdquo;);
+            </Text>{' '}
             │
           </Text>
           <Text color={theme.colors.warning}>
             ╭─────────────────────────────────────────────╮
           </Text>
           <Text color={theme.colors.warning}>
-            │ Do you trust the files in this folder?{"      "}│
+            │ Do you trust the files in this folder?{'      '}│
           </Text>
           <Text>
             <Text color={theme.colors.warning}>│ </Text>
             <Text color="white" dimColor>
               Enter to confirm · Esc to exit
             </Text>
-            <Text color={theme.colors.warning}>{"              "}│</Text>
+            <Text color={theme.colors.warning}>{'              '}│</Text>
           </Text>
           <Text color={theme.colors.claude}>
             ╭─────────────────────────────────────────────╮
@@ -68,12 +67,12 @@ export function ThemePreview({ theme }: ThemePreviewProps) {
             <Text color={theme.colors.claude}>│ </Text>
             <Text color={theme.colors.claude}>✻</Text>
             <Text> Welcome to Tweak Claude Code!</Text>
-            <Text color={theme.colors.claude}>{"             "}│</Text>
+            <Text color={theme.colors.claude}>{'             '}│</Text>
           </Text>
           <Text>
             <Text color={theme.colors.claude}>│</Text>
             <Text color={theme.colors.secondaryText} italic>
-              {" "}
+              {' '}
               /help for help, /status for your current s
             </Text>
             <Text color={theme.colors.claude}>│</Text>
@@ -96,23 +95,24 @@ export function ThemePreview({ theme }: ThemePreviewProps) {
             <Text color={theme.colors.planMode}>│ </Text>
             <Text color={theme.colors.permission}>Ready to code?</Text>
             <Text color={theme.colors.planMode}>
-              {"                              "}│
+              {'                              '}│
             </Text>
           </Text>
           <Text>
             <Text color={theme.colors.planMode}>│ </Text>
-            <Text>Here is Claude's plan:</Text>
+            <Text>Here is Claude&apos;s plan:</Text>
             <Text color={theme.colors.planMode}>
-              {"                      "}│
+              {'                      '}│
             </Text>
           </Text>
           <Text color={theme.colors.secondaryBorder}>
             ╭─────────────────────────────────────────────╮
           </Text>
           <Text>
-            <Text color={theme.colors.secondaryBorder}>│</Text>{" "}
+            <Text color={theme.colors.secondaryBorder}>│</Text>{' '}
             <Text color={theme.colors.secondaryText}>
-              &gt; Try "refactor &lt;filepath&gt;"{"                 "}│
+              &gt; Try &ldquo;refactor &lt;filepath&gt;&rdquo;
+              {'                 '}│
             </Text>
           </Text>
           <Text color={theme.colors.permission}>
@@ -121,15 +121,15 @@ export function ThemePreview({ theme }: ThemePreviewProps) {
           <Text>
             <Text color={theme.colors.permission}>
               │ <Text bold>Permissions:</Text>
-            </Text>{" "}
+            </Text>{' '}
             <Text
               backgroundColor={theme.colors.permission}
               color={theme.colors.inverseText}
               bold
             >
-              {" "}
-              Allow{" "}
-            </Text>{" "}
+              {' '}
+              Allow{' '}
+            </Text>{' '}
             Deny Workspace <Text color={theme.colors.permission}>│</Text>
           </Text>
           <Text color={theme.colors.secondaryText}>&gt; list the dir</Text>
@@ -144,13 +144,13 @@ export function ThemePreview({ theme }: ThemePreviewProps) {
             </Text>
           </Text>
           <Text color="white">
-            {" "}
-            <Text color={theme.colors.secondaryText}>1</Text>{" "}
+            {' '}
+            <Text color={theme.colors.secondaryText}>1</Text>{' '}
             <Text
               backgroundColor={theme.colors.diffRemovedDimmed}
               color={theme.colors.text}
             >
-              - import{" "}
+              - import{' '}
               <Text
                 backgroundColor={theme.colors.diffRemovedWordDimmed}
                 color={theme.colors.text}
@@ -160,13 +160,13 @@ export function ThemePreview({ theme }: ThemePreviewProps) {
             </Text>
           </Text>
           <Text color="white">
-            {" "}
-            <Text color={theme.colors.secondaryText}>2</Text>{" "}
+            {' '}
+            <Text color={theme.colors.secondaryText}>2</Text>{' '}
             <Text
               backgroundColor={theme.colors.diffAddedDimmed}
               color={theme.colors.text}
             >
-              + import{" "}
+              + import{' '}
               <Text
                 backgroundColor={theme.colors.diffAddedWordDimmed}
                 color={theme.colors.text}
@@ -194,7 +194,7 @@ export function ThemePreview({ theme }: ThemePreviewProps) {
           </Text>
           <Text>
             <Text color={theme.colors.autoAccept}>
-              ⏵⏵ auto-accept edits on{" "}
+              ⏵⏵ auto-accept edits on{' '}
             </Text>
             <Text color={theme.colors.secondaryText} dimColor>
               (shift+tab to cycle)

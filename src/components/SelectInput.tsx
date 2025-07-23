@@ -1,5 +1,5 @@
-import React from "react";
-import { Box, Text, useInput } from "ink";
+import React from 'react';
+import { Box, Text, useInput } from 'ink';
 
 interface SelectInputProps {
   items: string[];
@@ -28,8 +28,8 @@ export function SelectInput({
     <Box flexDirection="column">
       {items.map((item, index) => (
         <Box key={index}>
-          <Text color={index === selectedIndex ? "cyan" : "white"}>
-            {index === selectedIndex ? "❯ " : "  "}
+          <Text color={index === selectedIndex ? 'cyan' : 'white'}>
+            {index === selectedIndex ? '❯ ' : '  '}
             {item}
           </Text>
         </Box>
