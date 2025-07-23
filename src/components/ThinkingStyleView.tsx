@@ -127,7 +127,7 @@ export function ThinkingStyleView({
       } else if (key.escape) {
         setIntervalInput(config.updateInterval.toString());
         setEditingInterval(false);
-      } else if (key.backspace) {
+      } else if (key.backspace || key.delete) {
         setIntervalInput((prev) => prev.slice(0, -1));
       } else if (input && input.match(/^[0-9]$/)) {
         setIntervalInput((prev) => prev + input);
@@ -163,7 +163,7 @@ export function ThinkingStyleView({
         setPhaseInput("");
         setEditingPhase(false);
         setAddingNewPhase(false);
-      } else if (key.backspace) {
+      } else if (key.backspace || key.delete) {
         setPhaseInput((prev) => prev.slice(0, -1));
       } else if (input) {
         setPhaseInput((prev) => prev + input);
@@ -171,7 +171,7 @@ export function ThinkingStyleView({
       return;
     }
 
-    if (key.escape || key.backspace) {
+    if (key.escape) {
       onBack();
     } else if (key.return) {
       if (selectedOption === "updateInterval") {

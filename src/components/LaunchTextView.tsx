@@ -181,7 +181,7 @@ export function LaunchTextView({
           config.method === "figlet" ? config.figletText : config.customText
         );
         setEditingText(false);
-      } else if (key.backspace) {
+      } else if (key.backspace || key.delete) {
         setTextInput((prev) => prev.slice(0, -1));
       } else if (input) {
         setTextInput((prev) => prev + input);
@@ -204,7 +204,7 @@ export function LaunchTextView({
         // Cancel filtering
         setIsFilteringFonts(false);
         setFontFilter("");
-      } else if (key.backspace) {
+      } else if (key.backspace || key.delete) {
         setFontFilter((prev) => prev.slice(0, -1));
       } else if (key.upArrow) {
         const newIndex =
@@ -236,7 +236,7 @@ export function LaunchTextView({
       return;
     }
 
-    if (key.escape || key.backspace) {
+    if (key.escape) {
       onBack();
     } else if (key.return) {
       if (selectedOption === "text") {

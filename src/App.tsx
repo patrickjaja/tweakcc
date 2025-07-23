@@ -128,7 +128,7 @@ export default function App() {
       process.exit(0);
     }
     if (
-      (input === "q" || key.escape || key.backspace) &&
+      (input === "q" || key.escape) &&
       !state.editingColor &&
       state.currentView === "main"
     ) {

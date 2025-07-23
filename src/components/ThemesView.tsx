@@ -28,7 +28,7 @@ export function ThemesView({
   onDeleteTheme,
 }: ThemesViewProps) {
   useInput((input, key) => {
-    if (key.escape || key.backspace) {
+    if (key.escape) {
       onBack();
     } else if (input === "n") {
       onCreateTheme();

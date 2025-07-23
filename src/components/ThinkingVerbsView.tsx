@@ -62,7 +62,7 @@ export function ThinkingVerbsView({
       } else if (key.escape) {
         setPunctuationInput(config.punctuation);
         setEditingPunctuation(false);
-      } else if (key.backspace) {
+      } else if (key.backspace || key.delete) {
         setPunctuationInput((prev) => prev.slice(0, -1));
       } else if (input) {
         setPunctuationInput((prev) => prev + input);
@@ -94,7 +94,7 @@ export function ThinkingVerbsView({
         setVerbInput("");
         setEditingVerb(false);
         setAddingNewVerb(false);
-      } else if (key.backspace) {
+      } else if (key.backspace || key.delete) {
         setVerbInput((prev) => prev.slice(0, -1));
       } else if (input) {
         setVerbInput((prev) => prev + input);
@@ -102,7 +102,7 @@ export function ThinkingVerbsView({
       return;
     }
 
-    if (key.escape || key.backspace) {
+    if (key.escape) {
       onBack();
     } else if (key.return) {
       if (selectedOption === "punctuation") {

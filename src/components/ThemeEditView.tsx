@@ -37,7 +37,7 @@ export function ThemeEditView({
   useInput((input, key) => {
     if (editingColorIndex === null && editingNameId === null) {
       // Handle navigation when not editing
-      if (key.escape || key.backspace) {
+      if (key.escape) {
         onBack();
       } else if (key.ctrl && input === "a") {
         setColorFormat((prev) => {
@@ -96,7 +96,7 @@ export function ThemeEditView({
         setEditingNameId(null);
         setEditingValue("");
         setOriginalValue("");
-      } else if (key.backspace) {
+      } else if (key.backspace || key.delete) {
         setEditingValue((prev) => prev.slice(0, -1));
       } else if (input) {
         setEditingValue((prev) => prev + input);
