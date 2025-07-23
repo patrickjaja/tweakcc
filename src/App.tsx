@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Box, useInput, Text } from "ink";
 import { spawn } from "child_process";
 import { existsSync, writeFileSync, mkdirSync, readFileSync } from "fs";
@@ -13,7 +13,6 @@ import { ThinkingVerbsView } from "./components/ThinkingVerbsView.js";
 import { ThinkingStyleView } from "./components/ThinkingStyleView.js";
 import {
   AppState,
-  ViewType,
   Theme,
   LaunchTextConfig,
   ThinkingVerbsConfig,
@@ -74,7 +73,7 @@ export default function App() {
 
       if (result.needsUpdate) {
         setUpdateNotification(
-          "Claude Code version update available. Applying update..."
+          "Claude Code installation updated; reapplying changes..."
         );
         const updateResult = handleVersionUpdate(true);
         if (updateResult.success && updateResult.cliPath) {

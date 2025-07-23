@@ -4,7 +4,7 @@ import { Box, Text, useInput } from "ink";
 interface ColorPickerProps {
   initialValue: string;
   onColorChange: (color: string) => void;
-  onSave: () => void;
+  onExit: () => void;
   onCancel: () => void;
   colorKey?: string; // Add colorKey to identify diff colors
   theme?: any; // Add theme for text color
@@ -25,7 +25,7 @@ interface RGB {
 export function ColorPicker({
   initialValue,
   onColorChange,
-  onSave,
+  onExit,
   onCancel,
   colorKey,
   theme,
@@ -68,8 +68,8 @@ export function ColorPicker({
 
   useInput((input, key) => {
     if (key.return) {
-      onSave();
-    } else if (key.escape || key.backspace) {
+      onExit();
+    } else if (key.escape) {
       onCancel();
     } else if (key.ctrl && input === "a") {
       // Switch between HSL and RGB sliders
@@ -395,10 +395,10 @@ export function ColorPicker({
             ctrl+a to switch rgb/hsl
           </Text>
           <Text color="gray" dimColor>
-            enter to save
+            enter to exit (auto-saved)
           </Text>
           <Text color="gray" dimColor>
-            esc to exit
+            esc to cancel changes
           </Text>
         </Box>
       </Box>

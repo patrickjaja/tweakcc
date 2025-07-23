@@ -37,12 +37,15 @@ export function MainView({
   return (
     <Box flexDirection="column">
       <Box marginBottom={1}>
-        <Text>Tweak Claude Code</Text>
+        <Text bold backgroundColor="#ffd500" color="black">
+          {" "}
+          Tweak Claude Code{" "}
+        </Text>
       </Box>
       <Box marginBottom={1}>
         <Text color="gray">
-          Customize your Claude Code installation. Settings will be saved to a
-          JSON file.
+          <Text bold>Customize your Claude Code installation.</Text>{" "}
+          <Text dimColor>Settings will be saved to a JSON file.</Text>
         </Text>
       </Box>
       <Box marginBottom={1}>

@@ -33,7 +33,6 @@ export function ensureConfigDir(): void {
 }
 
 export function getConfig(): TweakCCConfig | null {
-  process.stdout.write("Loading config\r");
   try {
     if (fs.existsSync(CONFIG_FILE)) {
       const content = fs.readFileSync(CONFIG_FILE, "utf8");

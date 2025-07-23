@@ -487,8 +487,8 @@ function showDiff(
     contextEndNew
   );
 
-  console.log("\n--- Diff ---");
-  console.log("OLD:", oldBefore + `\x1b[31m${oldChanged}\x1b[0m` + oldAfter);
-  console.log("NEW:", newBefore + `\x1b[32m${newChanged}\x1b[0m` + newAfter);
-  console.log("--- End Diff ---\n");
+  // console.log("\n--- Diff ---");
+  // console.log("OLD:", oldBefore + `\x1b[31m${oldChanged}\x1b[0m` + oldAfter);
+  // console.log("NEW:", newBefore + `\x1b[32m${newChanged}\x1b[0m` + newAfter);
+  // console.log("--- End Diff ---\n");
 }

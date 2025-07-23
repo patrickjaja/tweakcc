@@ -319,7 +319,7 @@ export function ThemeEditView({
             theme={currentTheme}
             onColorChange={(color) => {
               setEditingValue(color);
-              // Update the theme live for preview
+              // Update the theme live for preview and auto-save
               const colorKey = colorKeys[editingColorIndex!];
               const updatedTheme = {
                 ...currentTheme,
@@ -329,17 +329,18 @@ export function ThemeEditView({
                 },
               };
               setCurrentTheme(updatedTheme);
+              // Auto-save every change
+              onSave(updatedTheme);  
             }}
-            onSave={() => {
-              // Save the final color
-              onSave(currentTheme);
+            onExit={() => {
+              // Exit color picker, keeping auto-saved changes
               setEditingColorIndex(null);
               setEditingValue("");
               setOriginalValue("");
               onColorEditEnd?.();
             }}
             onCancel={() => {
-              // Restore original theme
+              // Restore original theme and exit
               setCurrentTheme(theme);
               setEditingColorIndex(null);
               setEditingValue("");

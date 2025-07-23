@@ -57,7 +57,9 @@ export function ThinkingVerbsView({
   useInput((input, key) => {
     if (editingPunctuation) {
       if (key.return) {
-        setConfig((prev) => ({ ...prev, punctuation: punctuationInput }));
+        const newConfig = { ...config, punctuation: punctuationInput };
+        setConfig(newConfig);
+        onSave(newConfig);
         setEditingPunctuation(false);
       } else if (key.escape) {
         setPunctuationInput(config.punctuation);
@@ -73,19 +75,24 @@ export function ThinkingVerbsView({
     if (editingVerb || addingNewVerb) {
       if (key.return) {
         if (verbInput.trim()) {
+          let newConfig;
           if (addingNewVerb) {
-            setConfig((prev) => ({
-              ...prev,
-              verbs: [...prev.verbs, verbInput.trim()],
-            }));
+            newConfig = {
+              ...config,
+              verbs: [...config.verbs, verbInput.trim()],
+            };
+            setConfig(newConfig);
+            onSave(newConfig);
             setAddingNewVerb(false);
           } else {
-            setConfig((prev) => ({
-              ...prev,
-              verbs: prev.verbs.map((verb, index) =>
+            newConfig = {
+              ...config,
+              verbs: config.verbs.map((verb, index) =>
                 index === selectedVerbIndex ? verbInput.trim() : verb
               ),
-            }));
+            };
+            setConfig(newConfig);
+            onSave(newConfig);
             setEditingVerb(false);
           }
         }
@@ -108,8 +115,6 @@ export function ThinkingVerbsView({
       if (selectedOption === "punctuation") {
         setPunctuationInput(config.punctuation);
         setEditingPunctuation(true);
-      } else {
-        onSave(config);
       }
     } else if (key.tab) {
       if (key.shift) {
@@ -145,10 +150,12 @@ export function ThinkingVerbsView({
       }
     } else if (input === " ") {
       if (selectedOption === "useHaikuGenerated") {
-        setConfig((prev) => ({
-          ...prev,
-          useHaikuGenerated: !prev.useHaikuGenerated,
-        }));
+        const newConfig = {
+          ...config,
+          useHaikuGenerated: !config.useHaikuGenerated,
+        };
+        setConfig(newConfig);
+        onSave(newConfig);
         setSelectedOptionIndex(0); // Reset to first option when toggling
       }
     } else if (
@@ -168,10 +175,12 @@ export function ThinkingVerbsView({
     ) {
       // Delete verb
       if (config.verbs.length > 1) {
-        setConfig((prev) => ({
-          ...prev,
-          verbs: prev.verbs.filter((_, index) => index !== selectedVerbIndex),
-        }));
+        const newConfig = {
+          ...config,
+          verbs: config.verbs.filter((_, index) => index !== selectedVerbIndex),
+        };
+        setConfig(newConfig);
+        onSave(newConfig);
         if (selectedVerbIndex >= config.verbs.length - 1) {
           setSelectedVerbIndex(Math.max(0, config.verbs.length - 2));
         }
@@ -191,7 +200,9 @@ export function ThinkingVerbsView({
       !config.useHaikuGenerated
     ) {
       // Reset to default
-      setConfig((prev) => ({ ...prev, verbs: [...DEFAULT_VERBS] }));
+      const newConfig = { ...config, verbs: [...DEFAULT_VERBS] };
+      setConfig(newConfig);
+      onSave(newConfig);
       setSelectedVerbIndex(0);
     }
   });
@@ -212,8 +223,7 @@ export function ThinkingVerbsView({
           </Text>
           <Box>
             <Text dimColor>
-              enter to{" "}
-              {selectedOption === "punctuation" ? "edit punctuation" : "save"}
+              {selectedOption === "punctuation" ? "enter to edit punctuation" : "changes auto-saved"}
             </Text>
           </Box>
           <Box>
