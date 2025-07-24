@@ -27,8 +27,12 @@
     "claude-code-theme",
     "figlet"
   ],
-  "author": "",
+  "author": "Piebald LLC <support@piebald.ai>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/piebald-ai/tweakcc.git"
+  },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
     "@types/node": "^20.0.0",
