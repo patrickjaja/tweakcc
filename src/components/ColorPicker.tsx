@@ -257,7 +257,7 @@ export function ColorPicker({
     const segments = [];
     const colors = [
       [255, 0, 0], // Red
-      [255, 127, 0], // Orange
+      [255, 127, 0], // Orange (red-yellow)
       [255, 255, 0], // Yellow
       [127, 255, 0], // Yellow-green
       [0, 255, 0], // Green

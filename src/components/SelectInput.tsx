@@ -1,8 +1,15 @@
 import React from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text, TextProps, useInput } from 'ink';
+
+export interface SelectItem {
+  name: string;
+  desc?: string;
+  styles?: TextProps;
+  selectedStyles?: TextProps;
+}
 
 interface SelectInputProps {
-  items: string[];
+  items: SelectItem[];
   selectedIndex: number;
   onSelect: (index: number) => void;
   onSubmit: (item: string) => void;
@@ -20,7 +27,7 @@ export function SelectInput({
     } else if (key.downArrow) {
       onSelect(selectedIndex < items.length - 1 ? selectedIndex + 1 : 0);
     } else if (key.return) {
-      onSubmit(items[selectedIndex]);
+      onSubmit(items[selectedIndex].name);
     }
   });
 
@@ -28,9 +35,23 @@ export function SelectInput({
     <Box flexDirection="column">
       {items.map((item, index) => (
         <Box key={index}>
-          <Text color={index === selectedIndex ? 'cyan' : 'white'}>
-            {index === selectedIndex ? '❯ ' : '  '}
-            {item}
+          <Text>
+            <Text
+              bold={index === selectedIndex}
+              color={index === selectedIndex ? 'cyan' : undefined}
+              {...(index === selectedIndex
+                ? item.selectedStyles ?? {}
+                : item.styles ?? {})}
+            >
+              {index === selectedIndex ? '❯ ' : '  '}
+              {item.name}
+            </Text>
+
+            {item.desc && index === selectedIndex && (
+              <Text dimColor bold={false}>
+                {' \x1b[0;2m'}- {item.desc}
+              </Text>
+            )}
           </Text>
         </Box>
       ))}

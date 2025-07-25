@@ -1,27 +1,27 @@
-import { useState } from 'react';
+import { useState, useContext, useCallback } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { ThemePreview } from './ThemePreview.js';
 import { ColoredColorName } from './ColoredColorName.js';
 import { ColorPicker } from './ColorPicker.js';
-import { Theme } from '../types.js';
+import { Theme } from '../utils/types.js';
+import { SettingsContext } from '../App.js';
 
 interface ThemeEditViewProps {
-  theme: Theme;
   onBack: () => void;
-  onSave: (theme: Theme) => void;
-  onColorEditStart?: () => void;
-  onColorEditEnd?: () => void;
+  themeId: string;
 }
 
 type ColorFormat = 'rgb' | 'hex' | 'hsl';
 
-export function ThemeEditView({
-  theme,
-  onBack,
-  onSave,
-  onColorEditStart,
-  onColorEditEnd,
-}: ThemeEditViewProps) {
+export function ThemeEditView({ onBack, themeId }: ThemeEditViewProps) {
+  const {
+    settings: { themes },
+    updateSettings,
+  } = useContext(SettingsContext);
+
+  const [currentThemeId, setCurrentThemeId] = useState(themeId);
+  const currentTheme = themes.find(t => t.id === currentThemeId) || themes[0];
+
   const [colorFormat, setColorFormat] = useState<ColorFormat>('rgb');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [editingColorIndex, setEditingColorIndex] = useState<number | null>(
@@ -32,7 +32,15 @@ export function ThemeEditView({
   );
   const [editingValue, setEditingValue] = useState('');
   const [originalValue, setOriginalValue] = useState('');
-  const [currentTheme, setCurrentTheme] = useState(theme);
+
+  const updateTheme = useCallback((updateFn: (theme: Theme) => void) => {
+    updateSettings(settings => {
+      const themeIndex = settings.themes.findIndex(t => t.id === currentThemeId);
+      if (themeIndex !== -1) {
+        updateFn(settings.themes[themeIndex]);
+      }
+    });
+  }, [currentThemeId, updateSettings]);
 
   useInput((input, key) => {
     if (editingColorIndex === null && editingNameId === null) {
@@ -68,7 +76,6 @@ export function ThemeEditView({
           setEditingColorIndex(colorIndex);
           setEditingValue(currentValue);
           setOriginalValue(currentValue);
-          onColorEditStart?.();
         }
       }
     } else if (editingColorIndex !== null) {
@@ -83,12 +90,22 @@ export function ThemeEditView({
     } else if (editingNameId !== null) {
       // Handle text input when editing name/id
       if (key.return) {
-        const updatedTheme = {
-          ...currentTheme,
-          [editingNameId]: editingValue,
-        };
-        setCurrentTheme(updatedTheme);
-        onSave(updatedTheme);
+        if (editingNameId === 'id') {
+          // For ID changes, update currentThemeId first, then update the theme
+          const oldThemeId = currentThemeId;
+          setCurrentThemeId(editingValue);
+          updateSettings(settings => {
+            const themeIndex = settings.themes.findIndex(t => t.id === oldThemeId);
+            if (themeIndex !== -1) {
+              settings.themes[themeIndex].id = editingValue;
+            }
+          });
+        } else {
+          // For name changes, use the normal updateTheme function
+          updateTheme(theme => {
+            theme.name = editingValue;
+          });
+        }
         setEditingNameId(null);
         setEditingValue('');
         setOriginalValue('');
@@ -165,8 +182,10 @@ export function ThemeEditView({
     }
   };
 
-  const getColorDescription = (key: keyof typeof theme.colors): string => {
-    const descriptions: Record<keyof typeof theme.colors, string> = {
+  const getColorDescription = (
+    key: keyof typeof currentTheme.colors
+  ): string => {
+    const descriptions: Record<keyof typeof currentTheme.colors, string> = {
       claude:
         'Claude branding color.  Used for the Claude logo, the welcome message, and the thinking text.',
       text: 'Code color.  Used in diffs.',
@@ -207,8 +226,7 @@ export function ThemeEditView({
         <Box>
           <Text backgroundColor="#ffd500" color="black" bold>
             {' '}
-            Editing theme &ldquo;{currentTheme.name}&rdquo; ({currentTheme.id}
-            ){' '}
+            Editing theme &ldquo;{currentTheme.name}&rdquo; ({currentTheme.id}){' '}
           </Text>
         </Box>
 
@@ -295,7 +313,6 @@ export function ThemeEditView({
                           bold
                         />
                       </Text>
-                      {/* <Text>: </Text> */}
                     </Box>
                     <Text color={currentTheme.colors[key]}>
                       {formatColor(currentTheme.colors[key], colorFormat)}
@@ -323,32 +340,27 @@ export function ThemeEditView({
             onColorChange={color => {
               setEditingValue(color);
               // Update the theme live for preview and auto-save
-              const colorKey = colorKeys[editingColorIndex!];
-              const updatedTheme = {
-                ...currentTheme,
-                colors: {
-                  ...currentTheme.colors,
-                  [colorKey]: color,
-                },
-              };
-              setCurrentTheme(updatedTheme);
-              // Auto-save every change
-              onSave(updatedTheme);
+              updateTheme(theme => {
+                theme.colors[colorKeys[editingColorIndex!]] = color;
+              });
             }}
             onExit={() => {
-              // Exit color picker, keeping auto-saved changes
+              // Save the final editing value before exiting
+              updateTheme(theme => {
+                theme.colors[colorKeys[editingColorIndex!]] = editingValue;
+              });
               setEditingColorIndex(null);
               setEditingValue('');
               setOriginalValue('');
-              onColorEditEnd?.();
             }}
             onCancel={() => {
-              // Restore original theme and exit
-              setCurrentTheme(theme);
+              // Restore original value and exit
+              updateTheme(theme => {
+                theme.colors[colorKeys[editingColorIndex!]] = originalValue;
+              });
               setEditingColorIndex(null);
               setEditingValue('');
               setOriginalValue('');
-              onColorEditEnd?.();
             }}
           />
         )}

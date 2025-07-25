@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text } from 'ink';
-import { Theme } from '../types.js';
+import { Theme } from '../utils/types.js';
 
 interface ColoredColorNameProps {
   colorKey: keyof Theme['colors'];

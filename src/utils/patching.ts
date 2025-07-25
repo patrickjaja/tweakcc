@@ -1,4 +1,7 @@
-import { Theme } from '../types.js';
+import figlet from 'figlet';
+import * as fs from 'node:fs/promises';
+import { restoreClijsFromBackup, updateConfigFile } from './config.js';
+import { ClaudeCodeInstallationInfo, Theme, TweakccConfig } from './types.js';
 
 export interface LocationResult {
   startIndex: number;
@@ -76,7 +79,7 @@ export function getThemesLocation(oldFile: string): {
   const switchMatch = oldFile.match(switchPattern);
 
   if (!switchMatch || switchMatch.index == undefined) {
-    console.log('Failed to find switchMatch');
+    console.error('patch: themes: failed to find switchMatch');
     return null;
   }
 
@@ -86,12 +89,12 @@ export function getThemesLocation(oldFile: string): {
   const objMatch = oldFile.match(objPat);
 
   if (!objArrMatch || objArrMatch.index == undefined) {
-    console.log('Failed to find objArrMatch');
+    console.error('patch: themes: failed to find objArrMatch');
     return null;
   }
 
   if (!objMatch || objMatch.index == undefined) {
-    console.log('Failed to find objMatch');
+    console.error('patch: themes: failed to find objMatch');
     return null;
   }
 
@@ -112,7 +115,10 @@ export function getThemesLocation(oldFile: string): {
   };
 }
 
-export function writeThemes(oldFile: string, themes: Theme[]): string | null {
+export const writeThemes = (
+  oldFile: string,
+  themes: Theme[]
+): string | null => {
   const locations = getThemesLocation(oldFile);
   if (!locations) {
     return null;
@@ -184,9 +190,9 @@ export function writeThemes(oldFile: string, themes: Theme[]): string | null {
   );
 
   return newFile;
-}
+};
 
-function getThinkerSymbolCharsLocation(oldFile: string) {
+const getThinkerSymbolCharsLocation = (oldFile: string) => {
   const results = [];
 
   // Find all arrays that look like symbol arrays with the dot character
@@ -200,12 +206,12 @@ function getThinkerSymbolCharsLocation(oldFile: string) {
   }
 
   return results;
-}
+};
 
-export function writeThinkerSymbolChars(
+export const writeThinkerSymbolChars = (
   oldFile: string,
   symbols: string[]
-): string | null {
+): string | null => {
   const locations = getThinkerSymbolCharsLocation(oldFile);
   if (locations.length === 0) {
     return null;
@@ -234,38 +240,40 @@ export function writeThinkerSymbolChars(
   }
 
   return newFile;
-}
+};
 
-export function getThinkerSymbolSpeedLocation(
+const getThinkerSymbolSpeedLocation = (
   oldFile: string
-): LocationResult | null {
+): LocationResult | null => {
   // Use the original full regex to find the exact pattern
   const speedPattern =
     /[\w$]+\(\(\)=>\{if\(![\w$]+\)\{[\w$]+\(\d+\);return\}[\w$]+\(\([^)]+\)=>[^)]+\+1\)\},(\d+)\)/;
   const match = oldFile.match(speedPattern);
 
-  if (match && match.index !== undefined) {
-    // Find where the captured number starts and ends within the full match
-    const fullMatchText = match[0];
-    const capturedNumber = match[1];
-
-    // Find the number within the full match
-    const numberIndex = fullMatchText.lastIndexOf(capturedNumber);
-    const startIndex = match.index + numberIndex;
-    const endIndex = startIndex + capturedNumber.length;
-
-    return {
-      startIndex: startIndex,
-      endIndex: endIndex,
-    };
+  if (!match || match.index == undefined) {
+    console.error('patch: thinker symbol speed: failed to find match');
+    return null;
   }
-  return null;
-}
 
-export function writeThinkerSymbolSpeed(
+  // Find where the captured number starts and ends within the full match
+  const fullMatchText = match[0];
+  const capturedNumber = match[1];
+
+  // Find the number within the full match
+  const numberIndex = fullMatchText.lastIndexOf(capturedNumber);
+  const startIndex = match.index + numberIndex;
+  const endIndex = startIndex + capturedNumber.length;
+
+  return {
+    startIndex: startIndex,
+    endIndex: endIndex,
+  };
+};
+
+export const writeThinkerSymbolSpeed = (
   oldFile: string,
   speed: number
-): string | null {
+): string | null => {
   const location = getThinkerSymbolSpeedLocation(oldFile);
   if (!location) {
     return null;
@@ -286,15 +294,14 @@ export function writeThinkerSymbolSpeed(
     location.endIndex
   );
   return newContent;
-}
+};
 
-export function getUseHaikuVerbsLocation(
-  oldFile: string
-): LocationResult | null {
+const getUseHaikuVerbsLocation = (oldFile: string): LocationResult | null => {
   const envPattern = /process\.env\.DISABLE_NON_ESSENTIAL_MODEL_CALLS/;
   const match = oldFile.match(envPattern);
 
   if (!match || match.index == undefined) {
+    console.error('patch: use haiku verbs: failed to find match');
     return null;
   }
 
@@ -302,12 +309,12 @@ export function getUseHaikuVerbsLocation(
     startIndex: match.index,
     endIndex: match.index + match[0].length,
   };
-}
+};
 
-export function writeUseHaikuVerbs(
+export const writeUseHaikuVerbs = (
   oldFile: string,
   useHaiku: boolean
-): string | null {
+): string | null => {
   const location = getUseHaikuVerbsLocation(oldFile);
   if (!location) {
     return null;
@@ -321,52 +328,52 @@ export function writeUseHaikuVerbs(
 
   showDiff(oldFile, newFile, newValue, location.startIndex, location.endIndex);
   return newFile;
-}
+};
 
-export function getThinkerVerbsLocation(
+const getThinkerVerbsLocation = (
   oldFile: string
-): { okayVerbs: LocationResult; badVerbs: LocationResult } | null {
+): { okayVerbs: LocationResult } | null => {
   const okayPattern = /=\[\s*(?:"[A-Z][a-z]+ing",?\s*)+\]/s;
   const okayMatch = oldFile.match(okayPattern);
   if (!okayMatch || okayMatch.index == undefined) {
+    console.error('patch: thinker verbs: failed to find okayMatch');
     return null;
   }
 
-  const badPattern = /new Set\(\[\s*(?:"[A-Z][a-z]+ing",?\s*)+\]\)/s;
-  const badMatch = oldFile.match(badPattern);
-  if (!badMatch || badMatch.index == undefined) {
-    return null;
-  }
+  // 1.0.35 had these but apparently not 1.0.60.
+  //const exclPattern = /new Set\(\[\s*(?:"[A-Z][a-z]+ing",?\s*)+\]\)/s;
+  //const exclMatch = oldFile.match(exclPattern);
+  //if (!exclMatch || exclMatch.index == undefined) {
+  //  console.error('patch: thinker verbs: failed to find badMatch');
+  //  return null;
+  //}
 
   return {
     okayVerbs: {
       startIndex: okayMatch.index,
       endIndex: okayMatch.index + okayMatch[0].length,
     },
-    badVerbs: {
-      startIndex: badMatch.index,
-      endIndex: badMatch.index + badMatch[0].length,
-    },
+    //badVerbs: {
+    //  startIndex: exclMatch.index,
+    //  endIndex: exclMatch.index + exclMatch[0].length,
+    //},
   };
-}
+};
 
-export function writeThinkerVerbs(
+export const writeThinkerVerbs = (
   oldFile: string,
   verbs: string[]
-): string | null {
+): string | null => {
   const location = getThinkerVerbsLocation(oldFile);
   if (!location) {
     return null;
   }
 
   const verbsJson = '=' + JSON.stringify(verbs);
-  const badVerbsReplacement = 'new Set([])';
   const newFile =
     oldFile.slice(0, location.okayVerbs.startIndex) +
     verbsJson +
-    oldFile.slice(location.okayVerbs.endIndex, location.badVerbs.startIndex) +
-    badVerbsReplacement +
-    oldFile.slice(location.badVerbs.endIndex);
+    oldFile.slice(location.okayVerbs.endIndex);
 
   showDiff(
     oldFile,
@@ -376,32 +383,33 @@ export function writeThinkerVerbs(
     location.okayVerbs.endIndex
   );
   return newFile;
-}
+};
 
-export function getThinkerPunctuationLocation(
+const getThinkerPunctuationLocation = (
   oldFile: string
-): LocationResult | null {
+): LocationResult | null => {
   // Look for the exact pattern from the document
   const punctPattern =
-    /[\w$]+\.createElement\([\w$]+,\s*\{\s*color:\s*[\w$]+,\s*key:\s*"message"\s*\},\s*[\w$]+,\s*"…",\s*" "\s*\)/;
+    /[\w$]+\.createElement\([\w$]+,\{color:[\w$]+\},[\w$]+,"… "\)/;
   const match = oldFile.match(punctPattern);
 
   if (!match || match.index == undefined) {
+    console.error('patch: thinker punctuation: failed to find match');
     return null;
   }
 
-  const punctStart = match.index + match[0].indexOf(`"…"`);
-  const punctEnd = punctStart + 3;
+  const punctStart = match.index + match[0].indexOf(`"… "`);
+  const punctEnd = punctStart + 4;
   return {
     startIndex: punctStart,
     endIndex: punctEnd,
   };
-}
+};
 
-export function writeThinkerPunctuation(
+export const writeThinkerPunctuation = (
   oldFile: string,
   punctuation: string
-): string | null {
+): string | null => {
   const location = getThinkerPunctuationLocation(oldFile);
   if (!location) {
     return null;
@@ -415,16 +423,17 @@ export function writeThinkerPunctuation(
 
   showDiff(oldFile, newFile, punctJson, location.startIndex, location.endIndex);
   return newFile;
-}
+};
 
-export function getThinkerSymbolMirrorOptionLocation(
+const getThinkerSymbolMirrorOptionLocation = (
   oldFile: string
-): LocationResult | null {
+): LocationResult | null => {
   const mirrorPattern =
     /=\s*\[\.\.\.(\w+),\s*\.\.\.?\[\.\.\.\1\]\.reverse\(\)\]/;
   const match = oldFile.match(mirrorPattern);
 
   if (!match || match.index == undefined) {
+    console.error('patch: thinker symbol mirror option: failed to find match');
     return null;
   }
 
@@ -433,12 +442,12 @@ export function getThinkerSymbolMirrorOptionLocation(
     endIndex: match.index + match[0].length,
     variableName: match[1],
   };
-}
+};
 
-export function writeThinkerSymbolMirrorOption(
+export const writeThinkerSymbolMirrorOption = (
   oldFile: string,
   enableMirror: boolean
-): string | null {
+): string | null => {
   const location = getThinkerSymbolMirrorOptionLocation(oldFile);
   if (!location) {
     return null;
@@ -456,7 +465,7 @@ export function writeThinkerSymbolMirrorOption(
 
   showDiff(oldFile, newFile, newArray, location.startIndex, location.endIndex);
   return newFile;
-}
+};
 
 // Debug function for showing diffs (currently disabled)
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -494,3 +503,74 @@ function showDiff(
   // console.log("--- End Diff ---\n");
 }
 /* eslint-enable @typescript-eslint/no-unused-vars */
+
+export const applyCustomization = async (
+  config: TweakccConfig,
+  ccInstInfo: ClaudeCodeInstallationInfo
+): Promise<TweakccConfig> => {
+  // Clean up any existing customizations, which will likely break the heuristics, by restoring the
+  // original file from the backup.
+  await restoreClijsFromBackup(ccInstInfo);
+
+  let content = await fs.readFile(ccInstInfo.cliPath, { encoding: 'utf8' });
+
+  // Apply themes
+  let result: string | null = null;
+  if (config.settings.themes && config.settings.themes.length > 0) {
+    if ((result = writeThemes(content, config.settings.themes)))
+      content = result;
+  }
+
+  // Apply launch text
+  if (config.settings.launchText) {
+    const c = config.settings.launchText;
+    let textToApply = '';
+    if (c.method === 'custom' && c.customText) {
+      textToApply = c.customText;
+    } else if (c.method === 'figlet' && c.figletText) {
+      textToApply = await new Promise<string>(resolve =>
+        figlet.text(
+          c.figletText.replace('\n', ' '),
+          c.figletFont as unknown as figlet.Fonts,
+          (err, data) => {
+            if (err) {
+              console.error('patch: figlet: failed to generate text', err);
+              resolve('');
+            } else {
+              resolve(data || '');
+            }
+          }
+        )
+      );
+    }
+    if ((result = writeSigninBannerText(content, textToApply)))
+      content = result;
+  }
+
+  // Apply thinking verbs
+  // prettier-ignore
+  if (config.settings.thinkingVerbs) {
+    if ((result = writeUseHaikuVerbs(content, config.settings.thinkingVerbs.useHaikuGenerated)))
+      content = result;
+    if ((result = writeThinkerVerbs(content, config.settings.thinkingVerbs.verbs)))
+      content = result;
+    if ((result = writeThinkerPunctuation(content, config.settings.thinkingVerbs.punctuation)))
+      content = result;
+  }
+
+  // Apply thinking style
+  // prettier-ignore
+  if ((result = writeThinkerSymbolChars(content, config.settings.thinkingStyle.phases)))
+    content = result;
+  // prettier-ignore
+  if ((result = writeThinkerSymbolSpeed(content, config.settings.thinkingStyle.updateInterval)))
+    content = result;
+  // prettier-ignore
+  if ((result = writeThinkerSymbolMirrorOption(content, config.settings.thinkingStyle.reverseMirror)))
+    content = result;
+
+  await fs.writeFile(ccInstInfo.cliPath, content);
+  return await updateConfigFile(config => {
+    config.changesApplied = true;
+  });
+};

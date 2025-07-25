@@ -1,5 +1,5 @@
 import { Box, Text } from 'ink';
-import { Theme } from '../types.js';
+import { Theme } from '../utils/types.js';
 
 interface ThemePreviewProps {
   theme: Theme;

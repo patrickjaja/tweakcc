@@ -1,22 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Box, Text, useInput } from 'ink';
-import { ThinkingStyleConfig } from '../types.js';
-import { getCurrentClaudeTheme } from '../utils/claudeTheme.js';
-import { themes } from '../themes.js';
+import { getCurrentClaudeCodeTheme } from '../utils/misc.js';
+import { DEFAULT_SETTINGS } from '../utils/types.js';
+import { SettingsContext } from '../App.js';
 
 interface ThinkingStyleViewProps {
   onBack: () => void;
-  onSave: (config: ThinkingStyleConfig) => void;
-  initialConfig?: ThinkingStyleConfig;
 }
-
-const DEFAULT_PHASES = ['·', '✢', '✳', '✶', '✻', '✽'];
 
 const PRESETS = [
   {
     name: 'Default',
-    phases: ['·', '✢', '✳', '✶', '✻', '✽'],
-    reverseMirror: true,
+    phases: DEFAULT_SETTINGS.thinkingStyle.phases,
+    reverseMirror: DEFAULT_SETTINGS.thinkingStyle.reverseMirror,
   },
   { name: 'Basic', phases: ['|', '/', '-', '\\'], reverseMirror: false },
   {
@@ -57,18 +53,14 @@ const PRESETS = [
   },
 ];
 
-export function ThinkingStyleView({
-  onBack,
-  onSave,
-  initialConfig,
-}: ThinkingStyleViewProps) {
-  const [config, setConfig] = useState<ThinkingStyleConfig>(
-    initialConfig || {
-      reverseMirror: true,
-      updateInterval: 120,
-      phases: [...DEFAULT_PHASES],
-    }
-  );
+export function ThinkingStyleView({ onBack }: ThinkingStyleViewProps) {
+  const {
+    settings: {
+      thinkingStyle: { phases, updateInterval, reverseMirror },
+      themes,
+    },
+    updateSettings,
+  } = useContext(SettingsContext);
 
   const options = [
     'reverseMirror',
@@ -84,13 +76,11 @@ export function ThinkingStyleView({
   const [phaseInput, setPhaseInput] = useState('');
   const [addingNewPhase, setAddingNewPhase] = useState(false);
   const [editingInterval, setEditingInterval] = useState(false);
-  const [intervalInput, setIntervalInput] = useState(
-    config.updateInterval.toString()
-  );
+  const [intervalInput, setIntervalInput] = useState(updateInterval.toString());
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
 
   // Get current Claude theme and color
-  const currentThemeId = getCurrentClaudeTheme();
+  const currentThemeId = getCurrentClaudeCodeTheme();
   const currentTheme =
     themes.find(t => t.id === currentThemeId) ||
     themes.find(t => t.id === 'dark');
@@ -98,31 +88,31 @@ export function ThinkingStyleView({
 
   // Animate spinner based on config
   useEffect(() => {
-    if (config.phases.length > 0) {
-      const phases = config.reverseMirror
-        ? [...config.phases, ...[...config.phases].reverse().slice(1, -1)]
-        : config.phases;
+    if (phases.length > 0) {
+      const evaluatedPhases = reverseMirror
+        ? [...phases, ...[...phases].reverse().slice(1, -1)]
+        : phases;
 
       const interval = setInterval(() => {
-        setCurrentPhaseIndex(prev => (prev + 1) % phases.length);
-      }, config.updateInterval);
+        setCurrentPhaseIndex(prev => (prev + 1) % evaluatedPhases.length);
+      }, updateInterval);
 
       return () => clearInterval(interval);
     }
-  }, [config.phases, config.updateInterval, config.reverseMirror]);
+  }, [phases, updateInterval, reverseMirror]);
 
   useInput((input, key) => {
     if (editingInterval) {
       if (key.return) {
         const newInterval = parseInt(intervalInput);
         if (!isNaN(newInterval) && newInterval > 0) {
-          const newConfig = { ...config, updateInterval: newInterval };
-          setConfig(newConfig);
-          onSave(newConfig);
+          updateSettings(settings => {
+            settings.thinkingStyle.updateInterval = newInterval;
+          });
         }
         setEditingInterval(false);
       } else if (key.escape) {
-        setIntervalInput(config.updateInterval.toString());
+        setIntervalInput(updateInterval.toString());
         setEditingInterval(false);
       } else if (key.backspace || key.delete) {
         setIntervalInput(prev => prev.slice(0, -1));
@@ -133,28 +123,20 @@ export function ThinkingStyleView({
     }
 
     if (editingPhase || addingNewPhase) {
-      if (key.return) {
-        if (phaseInput.trim()) {
-          if (addingNewPhase) {
-            const newConfig = {
-              ...config,
-              phases: [...config.phases, phaseInput.trim()],
-            };
-            setConfig(newConfig);
-            onSave(newConfig);
-            setAddingNewPhase(false);
-          } else {
-            const newConfig = {
-              ...config,
-              phases: config.phases.map((phase, index) =>
-                index === selectedPhaseIndex ? phaseInput.trim() : phase
-              ),
-            };
-            setConfig(newConfig);
-            onSave(newConfig);
-            setEditingPhase(false);
-          }
-        }
+      if (key.return && phaseInput.trim()) {
+        // Depending on if we're adding a new phase or editing an existing one...
+        let newPhases = addingNewPhase
+          ? // Add the new phase.
+            [...phases, phaseInput.trim()]
+          : // Replace the selectedPhaseIndex'th phase with the new phase.
+            phases.map((phase, index) =>
+              index === selectedPhaseIndex ? phaseInput.trim() : phase
+            );
+
+        updateSettings(settings => {
+          settings.thinkingStyle.phases = newPhases;
+        });
+        setEditingPhase(false);
         setPhaseInput('');
       } else if (key.escape) {
         setPhaseInput('');
@@ -172,20 +154,20 @@ export function ThinkingStyleView({
       onBack();
     } else if (key.return) {
       if (selectedOption === 'updateInterval') {
-        setIntervalInput(config.updateInterval.toString());
+        setIntervalInput(updateInterval.toString());
         setEditingInterval(true);
       } else if (selectedOption === 'presets') {
         // Apply selected preset
         const preset = PRESETS[selectedPresetIndex];
-        const newConfig = {
-          ...config,
-          phases: [...preset.phases],
-          reverseMirror: preset.reverseMirror,
-        };
-        setConfig(newConfig);
-        onSave(newConfig);
-      } else {
-        onSave(config);
+        updateSettings(settings => {
+          settings.thinkingStyle.phases = [...preset.phases]; // Copy phases to avoid mutation later on.
+          settings.thinkingStyle.reverseMirror = preset.reverseMirror;
+        });
+      } else if (selectedOption === 'reverseMirror') {
+        updateSettings(settings => {
+          settings.thinkingStyle.reverseMirror =
+            !settings.thinkingStyle.reverseMirror;
+        });
       }
     } else if (key.tab) {
       if (key.shift) {
@@ -198,9 +180,9 @@ export function ThinkingStyleView({
         );
       }
     } else if (key.upArrow) {
-      if (selectedOption === 'phases' && config.phases.length > 0) {
+      if (selectedOption === 'phases' && phases.length > 0) {
         setSelectedPhaseIndex(prev =>
-          prev > 0 ? prev - 1 : config.phases.length - 1
+          prev > 0 ? prev - 1 : phases.length - 1
         );
       } else if (selectedOption === 'presets') {
         setSelectedPresetIndex(prev =>
@@ -208,9 +190,9 @@ export function ThinkingStyleView({
         );
       }
     } else if (key.downArrow) {
-      if (selectedOption === 'phases' && config.phases.length > 0) {
+      if (selectedOption === 'phases' && phases.length > 0) {
         setSelectedPhaseIndex(prev =>
-          prev < config.phases.length - 1 ? prev + 1 : 0
+          prev < phases.length - 1 ? prev + 1 : 0
         );
       } else if (selectedOption === 'presets') {
         setSelectedPresetIndex(prev =>
@@ -219,13 +201,14 @@ export function ThinkingStyleView({
       }
     } else if (input === ' ') {
       if (selectedOption === 'reverseMirror') {
-        const newConfig = { ...config, reverseMirror: !config.reverseMirror };
-        setConfig(newConfig);
-        onSave(newConfig);
+        updateSettings(settings => {
+          settings.thinkingStyle.reverseMirror =
+            !settings.thinkingStyle.reverseMirror;
+        });
       }
     } else if (input === 'e' && selectedOption === 'phases') {
-      if (config.phases.length > 0) {
-        setPhaseInput(config.phases[selectedPhaseIndex]);
+      if (phases.length > 0) {
+        setPhaseInput(phases[selectedPhaseIndex]);
         setEditingPhase(true);
       }
     } else if (input === 'a' && selectedOption === 'phases') {
@@ -233,66 +216,59 @@ export function ThinkingStyleView({
       setAddingNewPhase(true);
       setPhaseInput('');
     } else if (input === 'd' && selectedOption === 'phases') {
-      if (config.phases.length > 1) {
-        const newConfig = {
-          ...config,
-          phases: config.phases.filter(
+      if (phases.length > 1) {
+        updateSettings(settings => {
+          settings.thinkingStyle.phases = phases.filter(
             (_, index) => index !== selectedPhaseIndex
-          ),
-        };
-        setConfig(newConfig);
-        onSave(newConfig);
-        if (selectedPhaseIndex >= newConfig.phases.length) {
-          setSelectedPhaseIndex(Math.max(0, newConfig.phases.length - 1));
+          );
+        });
+        if (selectedPhaseIndex >= phases.length) {
+          setSelectedPhaseIndex(Math.max(0, phases.length - 1));
         }
       }
     } else if (input === 'w' && selectedOption === 'phases') {
       // Move phase up
       if (selectedPhaseIndex > 0) {
-        const newPhases = [...config.phases];
+        const newPhases = [...phases];
         [newPhases[selectedPhaseIndex - 1], newPhases[selectedPhaseIndex]] = [
           newPhases[selectedPhaseIndex],
           newPhases[selectedPhaseIndex - 1],
         ];
-        const newConfig = { ...config, phases: newPhases };
-        setConfig(newConfig);
-        onSave(newConfig);
+        updateSettings(settings => {
+          settings.thinkingStyle.phases = newPhases;
+        });
         setSelectedPhaseIndex(prev => prev - 1);
       }
     } else if (input === 's' && selectedOption === 'phases') {
       // Move phase down
-      if (selectedPhaseIndex < config.phases.length - 1) {
-        const newPhases = [...config.phases];
+      if (selectedPhaseIndex < phases.length - 1) {
+        const newPhases = [...phases];
         [newPhases[selectedPhaseIndex], newPhases[selectedPhaseIndex + 1]] = [
           newPhases[selectedPhaseIndex + 1],
           newPhases[selectedPhaseIndex],
         ];
-        const newConfig = { ...config, phases: newPhases };
-        setConfig(newConfig);
-        onSave(newConfig);
+        updateSettings(settings => {
+          settings.thinkingStyle.phases = newPhases;
+        });
         setSelectedPhaseIndex(prev => prev + 1);
       }
     } else if (key.ctrl && input === 'r') {
       // Reset all settings to default
-      const newConfig = {
-        reverseMirror: true,
-        updateInterval: 120,
-        phases: [...DEFAULT_PHASES],
-      };
-      setConfig(newConfig);
-      onSave(newConfig);
+      updateSettings(settings => {
+        settings.thinkingStyle = DEFAULT_SETTINGS.thinkingStyle;
+      });
       setSelectedPhaseIndex(0);
       setSelectedPresetIndex(0);
     }
   });
 
-  const checkboxChar = config.reverseMirror ? 'x' : ' ';
+  const checkboxChar = reverseMirror ? 'x' : ' ';
   const previewWidth = 50;
 
   const getAnimatedPhases = () => {
-    return config.reverseMirror
-      ? [...config.phases, ...[...config.phases].reverse().slice(1, -1)]
-      : config.phases;
+    return reverseMirror
+      ? [...phases, ...[...phases].reverse().slice(1, -1)]
+      : phases;
   };
 
   const animatedPhases = getAnimatedPhases();
@@ -313,8 +289,8 @@ export function ThinkingStyleView({
               {selectedOption === 'updateInterval'
                 ? 'edit interval'
                 : selectedOption === 'presets'
-                  ? 'apply preset'
-                  : 'save'}
+                ? 'apply preset'
+                : 'save'}
             </Text>
           </Box>
           <Box>
@@ -344,7 +320,7 @@ export function ThinkingStyleView({
 
         <Box marginLeft={2} marginBottom={1}>
           <Text>
-            [{checkboxChar}] {config.reverseMirror ? 'Enabled' : 'Disabled'}
+            [{checkboxChar}] {reverseMirror ? 'Enabled' : 'Disabled'}
           </Text>
         </Box>
 
@@ -375,9 +351,7 @@ export function ThinkingStyleView({
             borderStyle="round"
             borderColor={editingInterval ? 'yellow' : 'gray'}
           >
-            <Text>
-              {editingInterval ? intervalInput : config.updateInterval}
-            </Text>
+            <Text>{editingInterval ? intervalInput : updateInterval}</Text>
           </Box>
         </Box>
 
@@ -412,16 +386,10 @@ export function ThinkingStyleView({
                 0,
                 selectedPhaseIndex - Math.floor(maxVisible / 2)
               );
-              const endIndex = Math.min(
-                config.phases.length,
-                startIndex + maxVisible
-              );
+              const endIndex = Math.min(phases.length, startIndex + maxVisible);
               const adjustedStartIndex = Math.max(0, endIndex - maxVisible);
 
-              const visiblePhases = config.phases.slice(
-                adjustedStartIndex,
-                endIndex
-              );
+              const visiblePhases = phases.slice(adjustedStartIndex, endIndex);
 
               return (
                 <>
@@ -451,10 +419,10 @@ export function ThinkingStyleView({
                       </Text>
                     );
                   })}
-                  {endIndex < config.phases.length && (
+                  {endIndex < phases.length && (
                     <Text color="gray" dimColor>
                       {' '}
-                      ↓ {config.phases.length - endIndex} more below
+                      ↓ {phases.length - endIndex} more below
                     </Text>
                   )}
                 </>
@@ -581,11 +549,9 @@ export function ThinkingStyleView({
           </Text>
 
           <Box marginTop={1} flexDirection="column">
-            <Text dimColor>Phases: {config.phases.join('')}</Text>
-            <Text dimColor>
-              Reverse-mirror: {config.reverseMirror ? 'Yes' : 'No'}
-            </Text>
-            <Text dimColor>Update interval: {config.updateInterval}ms</Text>
+            <Text dimColor>Phases: {phases.join('')}</Text>
+            <Text dimColor>Reverse-mirror: {reverseMirror ? 'Yes' : 'No'}</Text>
+            <Text dimColor>Update interval: {updateInterval}ms</Text>
           </Box>
         </Box>
       </Box>

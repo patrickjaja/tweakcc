@@ -1,44 +1,36 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Box, Text, useInput, useStdout } from 'ink';
 import figlet from 'figlet';
-import { LaunchTextConfig } from '../types.js';
-import { getCurrentClaudeTheme } from '../utils/claudeTheme.js';
-import { themes } from '../themes.js';
+import { getCurrentClaudeCodeTheme } from '../utils/misc.js';
+import { SettingsContext } from '../App.js';
 
 interface LaunchTextViewProps {
   onBack: () => void;
-  onSave: (config: LaunchTextConfig) => void;
-  initialConfig?: LaunchTextConfig;
 }
 
 // Will be populated with all available fonts
 let FIGLET_FONTS: string[] = ['ANSI Shadow']; // Default fallback
 
-export function LaunchTextView({
-  onBack,
-  onSave,
-  initialConfig,
-}: LaunchTextViewProps) {
+export function LaunchTextView({ onBack }: LaunchTextViewProps) {
   const { stdout } = useStdout();
   const terminalWidth = stdout?.columns || 120;
 
-  const [config, setConfig] = useState<LaunchTextConfig>(
-    initialConfig || {
-      method: 'figlet',
-      figletText: 'CLAUDE\nCODE',
-      figletFont: 'ANSI Shadow',
-      customText: 'Your\nMultiline text\nHere',
-    }
-  );
+  const {
+    settings: {
+      launchText: { method, figletText, figletFont, customText },
+      themes,
+    },
+    updateSettings,
+  } = useContext(SettingsContext);
 
   const options =
-    config.method === 'figlet'
+    method === 'figlet'
       ? (['method', 'text', 'font'] as const)
       : (['method', 'text'] as const);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(0);
   const selectedOption = options[selectedOptionIndex];
   const [selectedMethodIndex, setSelectedMethodIndex] = useState(
-    config.method === 'figlet' ? 0 : 1
+    method === 'figlet' ? 0 : 1
   );
   const [availableFonts, setAvailableFonts] = useState<string[]>(FIGLET_FONTS);
   const [filteredFonts, setFilteredFonts] = useState<string[]>(FIGLET_FONTS);
@@ -49,11 +41,11 @@ export function LaunchTextView({
   const [previewWidth, setPreviewWidth] = useState(50);
   const [editingText, setEditingText] = useState(false);
   const [textInput, setTextInput] = useState(
-    config.method === 'figlet' ? config.figletText : config.customText
+    method === 'figlet' ? figletText : customText
   );
 
   // Get current Claude theme and color
-  const currentThemeId = getCurrentClaudeTheme();
+  const currentThemeId = getCurrentClaudeCodeTheme();
   const currentTheme =
     themes.find(t => t.id === currentThemeId) ||
     themes.find(t => t.id === 'dark');
@@ -70,7 +62,7 @@ export function LaunchTextView({
 
         // Set initial font index
         const fontIndex = sortedFonts.indexOf(
-          config.figletFont as unknown as figlet.Fonts
+          figletFont as unknown as figlet.Fonts
         );
         setSelectedFontIndex(
           fontIndex >= 0 ? fontIndex : sortedFonts.indexOf('ANSI Shadow') || 0
@@ -81,14 +73,14 @@ export function LaunchTextView({
 
   useEffect(() => {
     updatePreview();
-  }, [config, textInput, editingText]);
+  }, [method, figletText, figletFont, customText, textInput, editingText]);
 
   const updatePreview = () => {
-    if (config.method === 'figlet') {
+    if (method === 'figlet') {
       try {
-        const textToUse = editingText ? textInput : config.figletText;
+        const textToUse = editingText ? textInput : figletText;
         const result = figlet.textSync(textToUse.replace('\n', ' '), {
-          font: config.figletFont as unknown as figlet.Fonts,
+          font: figletFont as unknown as figlet.Fonts,
         });
 
         // Truncate long lines and calculate preview width
@@ -120,7 +112,7 @@ export function LaunchTextView({
       }
     } else {
       const availablePreviewWidth = Math.floor(terminalWidth * 0.6);
-      const textToUse = editingText ? textInput : config.customText;
+      const textToUse = editingText ? textInput : customText;
       const lines = textToUse.split('\n');
       const truncatedLines = lines.map(line =>
         line.length > availablePreviewWidth
@@ -152,36 +144,38 @@ export function LaunchTextView({
     } else {
       setFilteredFonts(availableFonts);
       // Restore original position if possible
-      const fontIndex = availableFonts.indexOf(config.figletFont);
+      const fontIndex = availableFonts.indexOf(figletFont);
       setSelectedFontIndex(fontIndex >= 0 ? fontIndex : 0);
     }
   }, [fontFilter, availableFonts]);
 
-  // Only update selectedFontIndex when config.figletFont changes from outside (not during filtering)
+  // Only update selectedFontIndex when figletFont changes from outside (not during filtering)
   useEffect(() => {
     if (!isFilteringFonts) {
-      const fontIndex = filteredFonts.indexOf(config.figletFont);
+      const fontIndex = filteredFonts.indexOf(figletFont);
       if (fontIndex >= 0) {
         setSelectedFontIndex(fontIndex);
       }
     }
-  }, [config.figletFont, filteredFonts, isFilteringFonts]);
+  }, [figletFont, filteredFonts, isFilteringFonts]);
 
   useInput((input, key) => {
     if (editingText) {
       if (key.return) {
         // Save text input
-        if (config.method === 'figlet') {
-          setConfig(prev => ({ ...prev, figletText: textInput }));
+        if (method === 'figlet') {
+          updateSettings(settings => {
+            settings.launchText.figletText = textInput;
+          });
         } else {
-          setConfig(prev => ({ ...prev, customText: textInput }));
+          updateSettings(settings => {
+            settings.launchText.customText = textInput;
+          });
         }
         setEditingText(false);
       } else if (key.escape) {
         // Cancel text editing
-        setTextInput(
-          config.method === 'figlet' ? config.figletText : config.customText
-        );
+        setTextInput(method === 'figlet' ? figletText : customText);
         setEditingText(false);
       } else if (key.backspace || key.delete) {
         setTextInput(prev => prev.slice(0, -1));
@@ -195,10 +189,9 @@ export function LaunchTextView({
       if (key.return) {
         // Apply selected filtered font
         if (filteredFonts.length > 0) {
-          setConfig(prev => ({
-            ...prev,
-            figletFont: filteredFonts[selectedFontIndex],
-          }));
+          updateSettings(settings => {
+            settings.launchText.figletFont = filteredFonts[selectedFontIndex];
+          });
         }
         setIsFilteringFonts(false);
         setFontFilter('');
@@ -215,10 +208,9 @@ export function LaunchTextView({
             : filteredFonts.length - 1;
         setSelectedFontIndex(newIndex);
         if (filteredFonts.length > 0) {
-          setConfig(prev => ({
-            ...prev,
-            figletFont: filteredFonts[newIndex],
-          }));
+          updateSettings(settings => {
+            settings.launchText.figletFont = filteredFonts[newIndex];
+          });
         }
       } else if (key.downArrow) {
         const newIndex =
@@ -227,10 +219,9 @@ export function LaunchTextView({
             : 0;
         setSelectedFontIndex(newIndex);
         if (filteredFonts.length > 0) {
-          setConfig(prev => ({
-            ...prev,
-            figletFont: filteredFonts[newIndex],
-          }));
+          updateSettings(settings => {
+            settings.launchText.figletFont = filteredFonts[newIndex];
+          });
         }
       } else if (input && input.match(/^[a-zA-Z0-9\s\-_]$/)) {
         setFontFilter(prev => prev + input);
@@ -242,12 +233,8 @@ export function LaunchTextView({
       onBack();
     } else if (key.return) {
       if (selectedOption === 'text') {
-        setTextInput(
-          config.method === 'figlet' ? config.figletText : config.customText
-        );
+        setTextInput(method === 'figlet' ? figletText : customText);
         setEditingText(true);
-      } else {
-        onSave(config);
       }
     } else if (key.tab) {
       if (key.shift) {
@@ -265,44 +252,40 @@ export function LaunchTextView({
       if (selectedOption === 'method') {
         const newIndex = selectedMethodIndex > 0 ? selectedMethodIndex - 1 : 1;
         setSelectedMethodIndex(newIndex);
-        setConfig(prev => ({
-          ...prev,
-          method: newIndex === 0 ? 'figlet' : 'custom',
-        }));
-      } else if (selectedOption === 'font' && config.method === 'figlet') {
+        updateSettings(settings => {
+          settings.launchText.method = newIndex === 0 ? 'figlet' : 'custom';
+        });
+      } else if (selectedOption === 'font' && method === 'figlet') {
         const newIndex =
           selectedFontIndex > 0
             ? selectedFontIndex - 1
             : filteredFonts.length - 1;
         setSelectedFontIndex(newIndex);
-        setConfig(prev => ({
-          ...prev,
-          figletFont: filteredFonts[newIndex],
-        }));
+        updateSettings(settings => {
+          settings.launchText.figletFont = filteredFonts[newIndex];
+        });
       }
     } else if (key.downArrow) {
       if (selectedOption === 'method') {
         const newIndex = selectedMethodIndex < 1 ? selectedMethodIndex + 1 : 0;
         setSelectedMethodIndex(newIndex);
-        setConfig(prev => ({
-          ...prev,
-          method: newIndex === 0 ? 'figlet' : 'custom',
-        }));
-      } else if (selectedOption === 'font' && config.method === 'figlet') {
+        updateSettings(settings => {
+          settings.launchText.method = newIndex === 0 ? 'figlet' : 'custom';
+        });
+      } else if (selectedOption === 'font' && method === 'figlet') {
         const newIndex =
           selectedFontIndex < filteredFonts.length - 1
             ? selectedFontIndex + 1
             : 0;
         setSelectedFontIndex(newIndex);
-        setConfig(prev => ({
-          ...prev,
-          figletFont: filteredFonts[newIndex],
-        }));
+        updateSettings(settings => {
+          settings.launchText.figletFont = filteredFonts[newIndex];
+        });
       }
     } else if (
       input &&
       selectedOption === 'font' &&
-      config.method === 'figlet' &&
+      method === 'figlet' &&
       input.match(/^[a-zA-Z0-9]$/)
     ) {
       // Start filtering when typing on font option
@@ -387,14 +370,14 @@ export function LaunchTextView({
             <Text>
               {editingText
                 ? textInput
-                : config.method === 'figlet'
-                  ? config.figletText
-                  : config.customText}
+                : method === 'figlet'
+                ? figletText
+                : customText}
             </Text>
           </Box>
         </Box>
 
-        {config.method === 'figlet' && (
+        {method === 'figlet' && (
           <>
             <Box>
               <Box flexDirection="column">

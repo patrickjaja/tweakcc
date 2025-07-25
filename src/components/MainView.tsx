@@ -1,39 +1,76 @@
 import { Box, Text } from 'ink';
-import { SelectInput } from './SelectInput.js';
-import { MainMenuItem } from '../types.js';
+import { SelectInput, SelectItem } from './SelectInput.js';
+import { useContext, useState } from 'react';
+import { SettingsContext } from '../App.js';
+import { CONFIG_FILE, MainMenuItem } from '../utils/types.js';
 
 interface MainViewProps {
-  selectedIndex: number;
-  onSelect: (index: number) => void;
   onSubmit: (item: MainMenuItem) => void;
-  changesApplied: boolean;
+  notification: {
+    message: string;
+    type: 'success' | 'error' | 'warning' | 'info';
+  } | null;
 }
 
-const baseMenuItems = [
-  MainMenuItem.THEMES,
-  MainMenuItem.LAUNCH_TEXT,
-  MainMenuItem.THINKING_VERBS,
-  MainMenuItem.THINKING_STYLE,
+// prettier-ignore
+const baseMenuItems: SelectItem[] = [
+  {
+    name: MainMenuItem.THEMES,
+    desc: "Modify Claude Code's built-in themes or create your own",
+  },
+  {
+    name: MainMenuItem.LAUNCH_TEXT,
+    desc: 'Change the "CLAUDE CODE" banner text that\'s shown when you sign in to Claude Code',
+  },
+  {
+    name: MainMenuItem.THINKING_VERBS,
+    desc: "Customize the list of verbs that Claude Code uses when it's working",
+  },
+  {
+    name: MainMenuItem.THINKING_STYLE,
+    desc: 'Choose custom spinners',
+  },
 ];
 
-const systemMenuItems = [
-  MainMenuItem.RESTORE_ORIGINAL,
-  MainMenuItem.OPEN_CONFIG,
-  MainMenuItem.OPEN_CLI,
-  MainMenuItem.EXIT,
+// prettier-ignore
+const systemMenuItems: SelectItem[] = [
+  {
+    name: MainMenuItem.RESTORE_ORIGINAL,
+    desc: 'Reverts your Claude Code install to its original state (your customizations are remembered and can be reapplied)',
+  },
+  {
+    name: MainMenuItem.OPEN_CONFIG,
+    desc: `Opens your tweack cc config file (${CONFIG_FILE})`,
+  },
+  {
+    name: MainMenuItem.OPEN_CLI,
+    desc: "Opens Claude Code's cli.js file",
+  },
+  {
+    name: MainMenuItem.EXIT,
+    desc: 'Bye!',
+  },
 ];
 
-export function MainView({
-  selectedIndex,
-  onSelect,
-  onSubmit,
-  changesApplied,
-}: MainViewProps) {
-  const menuItems = [
-    ...(changesApplied ? [] : [MainMenuItem.APPLY_CHANGES]),
+export function MainView({ onSubmit, notification }: MainViewProps) {
+  const menuItems: SelectItem[] = [
+    ...(useContext(SettingsContext).changesApplied
+      ? []
+      : [
+          {
+            name: MainMenuItem.APPLY_CHANGES,
+            desc: "Required: Updates Claude Code's cli.js in-place with your changes",
+            selectedStyles: {
+              color: 'green',
+            },
+          },
+        ]),
     ...baseMenuItems,
     ...systemMenuItems,
   ];
+
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
   return (
     <Box flexDirection="column">
       <Box marginBottom={1}>
@@ -48,18 +85,47 @@ export function MainView({
           <Text dimColor>Settings will be saved to a JSON file.</Text>
         </Text>
       </Box>
-      <Box marginBottom={1}>
-        <Text color="gray">
-          Note that when you update Claude Code, your customizations will be
-          lost, and you&apos;ll have to use the &apos;Apply settings&apos; menu
-          below to reapply them again.
-        </Text>
-      </Box>
+
+      {notification && (
+        <Box
+          marginBottom={1}
+          borderLeft={true}
+          borderRight={false}
+          borderTop={false}
+          borderBottom={false}
+          borderStyle="bold"
+          borderColor={
+            notification?.type === 'success'
+              ? 'green'
+              : notification?.type === 'error'
+              ? 'red'
+              : notification?.type === 'info'
+              ? 'blue'
+              : 'yellow'
+          }
+          paddingLeft={1}
+          flexDirection="column"
+        >
+          <Text
+            color={
+              notification?.type === 'success'
+                ? 'green'
+                : notification?.type === 'error'
+                ? 'red'
+                : notification?.type === 'info'
+                ? 'blue'
+                : 'yellow'
+            }
+          >
+            {notification?.message}
+          </Text>
+        </Box>
+      )}
 
       <SelectInput
         items={menuItems}
         selectedIndex={selectedIndex}
-        onSelect={onSelect}
+        onSelect={setSelectedIndex}
         onSubmit={item => onSubmit(item as MainMenuItem)}
       />
     </Box>

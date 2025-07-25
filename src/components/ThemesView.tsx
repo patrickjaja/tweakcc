@@ -1,51 +1,101 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
 import { Box, Text, useInput } from 'ink';
-import { SelectInput } from './SelectInput.js';
 import { ThemePreview } from './ThemePreview.js';
-import { Theme } from '../types.js';
+import { ThemeEditView } from './ThemeEditView.js';
+import { Theme } from '../utils/types.js';
+import { SettingsContext } from '../App.js';
+import { DEFAULT_SETTINGS } from '../utils/types.js';
 
 function generateThemeItems(themes: Theme[]): string[] {
   return themes.map(theme => `${theme.name} (${theme.id})`);
 }
 
 interface ThemesViewProps {
-  selectedIndex: number;
-  onSelect: (index: number) => void;
-  onSubmit: (item: string) => void;
   onBack: () => void;
-  themes: Theme[];
-  onCreateTheme: () => void;
-  onDeleteTheme: (themeId: string) => void;
 }
 
-export function ThemesView({
-  selectedIndex,
-  onSelect,
-  onSubmit,
-  onBack,
-  themes,
-  onCreateTheme,
-  onDeleteTheme,
-}: ThemesViewProps) {
+export function ThemesView({ onBack }: ThemesViewProps) {
+  const {
+    settings: { themes },
+    updateSettings,
+  } = useContext(SettingsContext);
+
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [editingThemeId, setEditingThemeId] = useState<string | null>(null);
+  const [inputActive, setInputActive] = useState(true);
+
+  const handleCreateTheme = () => {
+    const baseTheme = themes[0] || DEFAULT_SETTINGS.themes[0];
+    const newTheme: Theme = {
+      ...baseTheme,
+      name: 'New Custom Theme',
+      id: `custom-${Date.now()}`,
+    };
+
+    updateSettings(settings => {
+      settings.themes.push(newTheme);
+    });
+
+    setEditingThemeId(newTheme.id);
+    setInputActive(false);
+  };
+
+  const handleDeleteTheme = (themeId: string) => {
+    if (themes.length <= 1) return; // Don't delete the last theme
+
+    updateSettings(settings => {
+      settings.themes = settings.themes.filter(theme => theme.id !== themeId);
+    });
+
+    if (selectedIndex >= themes.length - 1) {
+      setSelectedIndex(Math.max(0, themes.length - 2));
+    }
+  };
+
+  const handleResetThemes = () => {
+    updateSettings(settings => {
+      settings.themes = [...DEFAULT_SETTINGS.themes]; // Copy to avoid mutation later.
+    });
+    setSelectedIndex(0);
+  };
+
   useInput((input, key) => {
     if (key.escape) {
       onBack();
+    } else if (key.upArrow) {
+      setSelectedIndex(prev => Math.max(0, prev - 1));
+    } else if (key.downArrow) {
+      setSelectedIndex(prev => Math.min(themes.length - 1, prev + 1));
+    } else if (key.return) {
+      const selectedTheme = themes[selectedIndex];
+      if (selectedTheme) {
+        setEditingThemeId(selectedTheme.id);
+        setInputActive(false);
+      }
     } else if (input === 'n') {
-      onCreateTheme();
+      handleCreateTheme();
     } else if (input === 'd') {
-      // Get the selected theme ID for deletion
-      const selectedItem = generateThemeItems(themes)[selectedIndex];
-      if (selectedItem) {
-        const match = selectedItem.match(/\(([^)]+)\)$/);
-        const themeId = match ? match[1] : null;
-        if (themeId) {
-          onDeleteTheme(themeId);
-        }
+      const selectedTheme = themes[selectedIndex];
+      if (selectedTheme) {
+        handleDeleteTheme(selectedTheme.id);
       }
     } else if (key.ctrl && input === 'r') {
-      console.log('Resetting to default themes...');
+      handleResetThemes();
     }
-  });
+  }, { isActive: inputActive });
+
+  // Handle editing theme view after all hooks are called
+  if (editingThemeId) {
+    return (
+      <ThemeEditView
+        themeId={editingThemeId}
+        onBack={() => {
+          setEditingThemeId(null);
+          setInputActive(true);
+        }}
+      />
+    );
+  }
 
   const themeItems = generateThemeItems(themes);
   const selectedTheme =
@@ -82,15 +132,21 @@ export function ThemesView({
           <Text dimColor>n to create a new theme</Text>
           <Text dimColor>d to delete a theme</Text>
           <Text dimColor>ctrl+r to delete all themes and restore built-in</Text>
-          <Text dimColor>esc to go back to main menus</Text>
+          <Text dimColor>enter to edit theme</Text>
+          <Text dimColor>esc to go back</Text>
         </Box>
 
-        <SelectInput
-          items={themeItems}
-          selectedIndex={selectedIndex}
-          onSelect={onSelect}
-          onSubmit={onSubmit}
-        />
+        <Box flexDirection="column">
+          {themeItems.map((item, index) => (
+            <Text
+              key={index}
+              color={selectedIndex === index ? 'yellow' : undefined}
+            >
+              {selectedIndex === index ? '❯ ' : '  '}
+              {item}
+            </Text>
+          ))}
+        </Box>
       </Box>
 
       <Box width="50%">
