@@ -29,9 +29,14 @@
   ],
   "author": {
     "name": "Piebald LLC",
-    "url": "https://github.com/Piebald-AI"
+    "email": "support@piebald.ai",
+    "url": "https://piebald.ai"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Piebald-AI/tweakcc.git"
+  },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
     "@types/node": "^20.0.0",
