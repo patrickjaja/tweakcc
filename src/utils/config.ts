@@ -165,7 +165,7 @@ export const findClaudeCodeInstallation = async (
   return null;
 };
 
-export const backupClijs = async (ccInstInfo: ClaudeCodeInstallationInfo) => {
+const backupClijs = async (ccInstInfo: ClaudeCodeInstallationInfo) => {
   await ensureConfigDir();
   if (isDebug()) {
     console.log(`Backing up cli.js to ${CLIJS_BACKUP_FILE}`);
