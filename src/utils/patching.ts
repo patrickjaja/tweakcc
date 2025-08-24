@@ -552,6 +552,7 @@ export const writeThinkerSymbolWidthLocation = (
 };
 
 // Debug function for showing diffs (currently disabled)
+/* eslint-disable @typescript-eslint/no-unused-vars */
 function showDiff(
   oldFileContents: string,
   newFileContents: string,
@@ -587,6 +588,7 @@ function showDiff(
     console.log('--- End Diff ---\n');
   }
 }
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 export const applyCustomization = async (
   config: TweakccConfig,
