@@ -190,22 +190,6 @@ async function doesFileExist(filePath: string): Promise<boolean> {
 }
 
 /**
- * Validates that a backup file exists and is valid
- */
-export async function validateBackup(): Promise<boolean> {
-  try {
-    if (!(await doesFileExist(CLIJS_BACKUP_FILE))) {
-      return false;
-    }
-    const stats = await fs.stat(CLIJS_BACKUP_FILE);
-    // Check if file size is reasonable (at least 1MB for a valid cli.js)
-    return stats.size > 1000000;
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Performs startup checking: finding Claude Code, creating a backup if necessary, checking if
  * it's been updated.  If true, an update is required.
  */

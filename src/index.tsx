@@ -3,12 +3,7 @@ import { render } from 'ink';
 import { Command } from 'commander';
 import App from './App.js';
 import { CLIJS_SEARCH_PATHS, CONFIG_FILE } from './utils/types.js';
-import {
-  startupCheck,
-  readConfigFile,
-  backupClijs,
-  validateBackup,
-} from './utils/config.js';
+import { startupCheck, readConfigFile } from './utils/config.js';
 import { enableDebug } from './utils/misc.js';
 import { applyCustomization } from './utils/patching.js';
 import chalk from 'chalk';
@@ -69,32 +64,8 @@ const main = async () => {
         chalk.gray(`📦 Version: ${startupCheckInfo.ccInstInfo.version}`)
       );
 
-      // Ensure we have a valid backup before applying customizations
-      const hasValidBackup = await validateBackup();
-      if (!hasValidBackup) {
-        console.log(
-          chalk.yellow('⚠️  No valid backup found, creating backup...')
-        );
-        try {
-          await backupClijs(startupCheckInfo.ccInstInfo);
-          console.log(chalk.green('✅ Backup created successfully'));
-        } catch (backupError) {
-          console.error(chalk.red('❌ Failed to create backup:'));
-          console.error(
-            chalk.red(
-              backupError instanceof Error
-                ? backupError.message
-                : String(backupError)
-            )
-          );
-          console.error(
-            chalk.yellow('⚠️  Proceeding without backup is risky. Aborting.')
-          );
-          process.exit(1);
-        }
-      } else {
-        console.log(chalk.gray('✓ Valid backup exists'));
-      }
+      // Note: startupCheck() already creates/updates backup as needed
+      console.log(chalk.gray('✓ Backup handled by startup check'));
 
       // Apply the customizations
       console.log(chalk.cyan('🎨 Applying customizations...'));
