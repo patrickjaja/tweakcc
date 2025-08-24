@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - New `--apply` CLI option to apply stored customizations without interactive UI
-- Welcome message customization that replaces "Claude Code" with custom launch text name
 
 ## [1.1.3] - Previous Release
 
