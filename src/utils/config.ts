@@ -165,7 +165,7 @@ export const findClaudeCodeInstallation = async (
   return null;
 };
 
-const backupClijs = async (ccInstInfo: ClaudeCodeInstallationInfo) => {
+export const backupClijs = async (ccInstInfo: ClaudeCodeInstallationInfo) => {
   await ensureConfigDir();
   if (isDebug()) {
     console.log(`Backing up cli.js to ${CLIJS_BACKUP_FILE}`);
@@ -186,6 +186,22 @@ async function doesFileExist(filePath: string): Promise<boolean> {
       return false;
     }
     throw error;
+  }
+}
+
+/**
+ * Validates that a backup file exists and is valid
+ */
+export async function validateBackup(): Promise<boolean> {
+  try {
+    if (!(await doesFileExist(CLIJS_BACKUP_FILE))) {
+      return false;
+    }
+    const stats = await fs.stat(CLIJS_BACKUP_FILE);
+    // Check if file size is reasonable (at least 1MB for a valid cli.js)
+    return stats.size > 1000000;
+  } catch {
+    return false;
   }
 }
 
