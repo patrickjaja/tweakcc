@@ -6,11 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- **New:** Add welcome message customization - replaces "Claude Code" with custom text in the welcome message when customText is defined
 
 ## [v1.2.0](https://github.com/Piebald-AI/tweakcc/releases/tag/v1.2.0) - 2025-08-25
 
 - **New:** Bring back the token counter and elapsed time metric (#37) - @bl-ue
-- **New:** Add welcome message customization - replaces "Claude Code" with custom text in the welcome message when customText is defined
 
 ## [v1.1.4](https://github.com/Piebald-AI/tweakcc/releases/tag/v1.1.4) - 2025-08-25
 

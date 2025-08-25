@@ -116,7 +116,6 @@ export function writeWelcomeMessage(
     location.endIndex
   );
 
-  console.log('patch: welcome message: replaced successfully');
   return newFile;
 }
 
@@ -738,8 +737,9 @@ export const applyCustomization = async (
       content = result;
 
     // Also apply customText to welcome message if it's defined
-    if (c.customText) {
-      if ((result = writeWelcomeMessage(content, c.customText)))
+    const welcomeMessage = c.method === 'custom' ? c.customText : c.figletText;
+    if (welcomeMessage) {
+      if ((result = writeWelcomeMessage(content, welcomeMessage)))
         content = result;
     }
   }
