@@ -96,7 +96,7 @@ export function writeWelcomeMessage(
 ): string | null {
   const location = getWelcomeMessageLocation(oldFile);
   if (!location) {
-    console.log('patch: welcome message: failed to find location');
+    console.error('patch: welcome message: failed to find location');
     return null;
   }
 
